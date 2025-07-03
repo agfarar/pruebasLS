@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Coach Gamificado - Siigo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .dashboard {
+            background: white;
+            margin: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: calc(100vh - 40px);
+            position: relative;
+        }
+
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar {
+            position: absolute;
+            left: 0;
+            top: 70px;
+            width: 250px;
+            background: #f8fafc;
+            height: calc(100% - 70px);
+            border-right: 1px solid #e2e8f0;
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: #e2e8f0;
+            border-left-color: #2563eb;
+        }
+
+        .menu-item.predictive {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .analytics-module {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #e2e8f0, #f1f5f9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #64748b;
+            margin: 20px 0;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 350px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .tooltip.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .tooltip.bottom::before {
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 10px 10px 10px;
+            border-color: transparent transparent #667eea transparent;
+        }
+
+        .tooltip.top::before {
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0 10px;
+            border-color: #667eea transparent transparent transparent;
+        }
+
+        .tooltip.left::before {
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent #667eea;
+        }
+
+        .tooltip.right::before {
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 10px 10px 10px 0;
+            border-color: transparent #667eea transparent transparent;
+        }
+
+        .tooltip-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tooltip-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .tooltip-content {
+            margin-bottom: 20px;
+        }
+
+        .tooltip-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step-counter {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .tooltip-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #f1f5f9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            z-index: 1001;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #06d6a0);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .achievement-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #06d6a0);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1002;
+            max-width: 300px;
+        }
+
+        .badge {
+            width: 50px;
+            height: 50px;
+            background: #f59e0b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+        }
+
+        .highlight {
+            position: relative;
+            z-index: 1001;
+            box-shadow: 0 0 0 2px #667eea, 0 0 20px rgba(102, 126, 234, 0.5);
+            border-radius: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-10px); }
+            70% { transform: translateY(-5px); }
+            90% { transform: translateY(-2px); }
+        }
+
+        .achievement-popup.show .badge {
+            animation: bounce 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="achievement-popup" id="achievementPopup">
+        <div class="badge">🏆</div>
+        <h3 id="achievementTitle">¡Felicitaciones!</h3>
+        <p id="achievementText">Has desbloqueado una nueva insignia</p>
+    </div>
+
+    <div class="dashboard">
+        <div class="header">
+            <div class="logo">SIIGO</div>
+            <div class="user-info">
+                <span>Bienvenido, María</span>
+                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%;"></div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="menu-item" id="contabilidad">📊 Contabilidad</div>
+            <div class="menu-item" id="facturacion">📋 Facturación</div>
+            <div class="menu-item" id="inventarios">📦 Inventarios</div>
+            <div class="menu-item predictive" id="analitica">🔮 Analítica Predictiva</div>
+            <div class="menu-item" id="reportes">📈 Reportes</div>
+            <div class="menu-item" id="configuracion">⚙️ Configuración</div>
+        </div>
+
+        <div class="main-content">
+            <h1>Dashboard Principal</h1>
+            <p style="color: #64748b; margin-bottom: 20px;">Gestiona tu negocio de manera inteligente</p>
+            
+            <div class="analytics-module" id="analyticsModule">
+                <h2>Módulo de Analítica Predictiva</h2>
+                <p style="color: #64748b; margin: 10px 0;">Descubre insights poderosos sobre tu flujo de caja</p>
+                
+                <div class="chart-placeholder" id="chartArea">
+                    <span>Haz clic en "Activar" para generar tu primera predicción</span>
+                </div>
+                
+                <button class="btn btn-primary" id="activateBtn" style="background: #2563eb; color: white; margin: 10px;">
+                    Activar Analítica Predictiva
+                </button>
+                
+                <button class="btn btn-primary" id="exportBtn" style="background: #10b981; color: white; margin: 10px; display: none;">
+                    📊 Exportar a PowerPoint
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip bottom" id="tooltip1" style="top: 120px; left: 50px;">
+        <div class="tooltip-header">
+            <div class="tooltip-icon">👋</div>
+            <div class="tooltip-title">¡Bienvenido, Analista en potencia!</div>
+        </div>
+        <div class="tooltip-content">
+            Hola María, soy tu Coach Predictivo. Te guiaré paso a paso para activar y usar la analítica que transformará tu toma de decisiones. ¡No temas, es más fácil de lo que piensas!
+        </div>
+        <div class="tooltip-footer">
+            <div class="step-counter">Paso 1 de 5</div>
+            <div class="tooltip-buttons">
+                <button class="btn btn-secondary" onclick="skipTour()">Saltar</button>
+                <button class="btn btn-primary" onclick="nextStep()">¡Comenzar!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip right" id="tooltip2" style="top: 300px; left: 270px;">
+        <div class="tooltip-header">
+            <div class="tooltip-icon">🔮</div>
+            <div class="tooltip-title">Descubre tu nuevo superpoder</div>
+        </div>
+        <div class="tooltip-content">
+            Este es tu módulo de Analítica Predictiva. Aquí podrás ver el futuro de tu flujo de caja, identificar tendencias y tomar decisiones informadas. ¡Mira cómo brilla en amarillo para llamar tu atención!
+        </div>
+        <div class="tooltip-footer">
+            <div class="step-counter">Paso 2 de 5</div>
+            <div class="tooltip-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="nextStep()">Explorar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip top" id="tooltip3" style="top: 550px; left: 550px;">
+        <div class="tooltip-header">
+            <div class="tooltip-icon">🚀</div>
+            <div class="tooltip-title">Activa tu primera predicción</div>
+        </div>
+        <div class="tooltip-content">
+            ¡Tranquila! Este botón es completamente seguro. Al hacer clic, generaremos tu primer gráfico predictivo sin afectar tus datos existentes. Es como tener una bola de cristal para tu negocio.
+        </div>
+        <div class="tooltip-footer">
+            <div class="step-counter">Paso 3 de 5</div>
+            <div class="tooltip-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="activateAnalytics()">Activar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip left" id="tooltip4" style="top: 400px; left: 450px;">
+        <div class="tooltip-header">
+            <div class="tooltip-icon">📊</div>
+            <div class="tooltip-title">¡Increíble! Tu predicción está lista</div>
+        </div>
+        <div class="tooltip-content">
+            ¿Ves qué fácil fue? Ahora tienes una predicción de tu flujo de caja para los próximos 30 días. Los gráficos te muestran tendencias claras: verde = ingresos crecientes, rojo = atención requerida.
+        </div>
+        <div class="tooltip-footer">
+            <div class="step-counter">Paso 4 de 5</div>
+            <div class="tooltip-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="nextStep()">¡Genial!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip top" id="tooltip5" style="top: 580px; left: 700px;">
+        <div class="tooltip-header">
+            <div class="tooltip-icon">🎯</div>
+            <div class="tooltip-title">Tu reporte listo para presentar</div>
+        </div>
+        <div class="tooltip-content">
+            Con un solo clic, puedes exportar un PowerPoint profesional con tu logo y gráficos listos para la junta directiva. ¡Adiós a las horas de formateo manual, Sofía estaría orgullosa!
+        </div>
+        <div class="tooltip-footer">
+            <div class="step-counter">Paso 5 de 5</div>
+            <div class="tooltip-buttons">
+                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
+                <button class="btn btn-primary" onclick="completeTour()">¡Finalizar!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 5;
+        let achievements = [
+            { title: "Explorador Predictivo", text: "¡Has comenzado tu viaje hacia la analítica!" },
+            { title: "Descubridor de Módulos", text: "¡Encontraste el tesoro escondido!" },
+            { title: "Activador Valiente", text: "¡Superaste el miedo a lo desconocido!" },
+            { title: "Intérprete de Datos", text: "¡Ya sabes leer el futuro!" },
+            { title: "Maestro de Presentaciones", text: "¡Eres un experto en reportes!" }
+        ];
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function showTooltip(step) {
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`tooltip${i}`).classList.remove('active');
+            }
+            if (step > 0 && step <= totalSteps) {
+                document.getElementById(`tooltip${step}`).classList.add('active');
+                document.getElementById('overlay').classList.add('active');
+                removeHighlights();
+                addHighlight(step);
+            } else {
+                document.getElementById('overlay').classList.remove('active');
+                removeHighlights();
+            }
+            updateProgress();
+        }
+
+        function addHighlight(step) {
+            switch(step) {
+                case 1:
+                    break;
+                case 2:
+                    document.getElementById('analitica').classList.add('highlight');
+                    break;
+                case 3:
+                    document.getElementById('activateBtn').classList.add('highlight', 'pulse');
+                    break;
+                case 4:
+                    document.getElementById('chartArea').classList.add('highlight');
+                    break;
+                case 5:
+                    document.getElementById('exportBtn').classList.add('highlight', 'pulse');
+                    break;
+            }
+        }
+
+        function removeHighlights() {
+            document.querySelectorAll('.highlight').forEach(el => {
+                el.classList.remove('highlight', 'pulse');
+            });
+        }
+
+        function showAchievement(step) {
+            if (step > 0 && step <= achievements.length) {
+                const achievement = achievements[step - 1];
+                const popup = document.getElementById('achievementPopup');
+                document.getElementById('achievementTitle').textContent = achievement.title;
+                document.getElementById('achievementText').textContent = achievement.text;
+                popup.classList.add('show');
+                setTimeout(() => {
+                    popup.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                showTooltip(currentStep);
+                showAchievement(currentStep);
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showTooltip(currentStep);
+            }
+        }
+
+        function activateAnalytics() {
+            document.getElementById('chartArea').innerHTML = `
+                <div style="background: linear-gradient(45deg, #10b981, #06d6a0); height: 200px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px;">
+                    📈 Tu flujo de caja proyectado: +15% este mes
+                </div>
+                <p style="margin-top: 15px; color: #059669;">¡Excelente! Tus ingresos muestran una tendencia positiva</p>
+            `;
+            document.getElementById('exportBtn').style.display = 'inline-block';
+            nextStep();
+        }
+
+        function completeTour() {
+            showAchievement(5);
+            setTimeout(() => {
+                alert('🎉 ¡Felicitaciones María! Has completado el Tour Coach Gamificado.\n\n✅ Desbloqueaste 5 insignias\n📊 Activaste tu primera predicción\n🎯 Aprendiste a exportar reportes\n\n¡Ahora puedes usar la analítica predictiva con confianza!');
+                showTooltip(0);
+                currentStep = 0;
+            }, 1000);
+        }
+
+        function skipTour() {
+            if (confirm('¿Estás seguro de que quieres saltar el tour? Te perderás consejos valiosos y recompensas.')) {
+                showTooltip(0);
+                currentStep = 0;
+            }
+        }
+
+        window.onload = function() {
+            setTimeout(() => {
+                currentStep = 1;
+                showTooltip(1);
+            }, 1000);
+        };
+
+        document.getElementById('analitica').addEventListener('click', function() {
+            if (currentStep === 2) {
+                nextStep();
+            }
+        });
+    </script>
+</body>
+</html>
