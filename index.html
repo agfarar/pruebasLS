@@ -5,819 +5,343 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tour Coach Gamificado - Siigo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        .dashboard {
-            background: white;
-            margin: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            min-height: calc(100vh - 40px);
-            position: relative;
-        }
-
-        .header {
-            background: #2563eb;
-            color: white;
-            padding: 20px;
-            border-radius: 12px 12px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sidebar {
-            position: absolute;
-            left: 0;
-            top: 70px;
-            width: 250px;
-            background: #f8fafc;
-            height: calc(100% - 70px);
-            border-right: 1px solid #e2e8f0;
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            position: relative;
-        }
-
-        .menu-item:hover {
-            background: #e2e8f0;
-            border-left-color: #2563eb;
-        }
-
-        .menu-item.predictive {
-            background: #fef3c7;
-            border-left-color: #f59e0b;
-        }
-
-        .menu-item.active {
-            background: #e0e7ff;
-            border-left-color: #2563eb;
-        }
-
-        .main-content {
-            margin-left: 250px;
-            padding: 30px;
-            position: relative;
-        }
-
-        .analytics-module {
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 40px;
-            text-align: center;
-            margin-top: 20px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .analytics-module.activated {
-            border-color: #10b981;
-            background: #f0fdf4;
-        }
-
-        .chart-placeholder {
-            width: 100%;
-            height: 300px;
-            background: linear-gradient(45deg, #e2e8f0, #f1f5f9);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #64748b;
-            margin: 20px 0;
-            transition: all 0.5s ease;
-        }
-
-        .chart-active {
-            background: linear-gradient(45deg, #10b981, #06d6a0);
-            color: white;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .chart-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .chart-bars {
-            display: flex;
-            align-items: end;
-            gap: 8px;
-            height: 100px;
-        }
-
-        .chart-bar {
-            width: 15px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 2px;
-            animation: growBar 1s ease-out;
-        }
-
-        @keyframes growBar {
-            from { height: 0; }
-            to { height: var(--bar-height); }
-        }
-
-        .tooltip {
-            position: absolute;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            max-width: 350px;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .tooltip.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .tooltip::before {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 0;
-            border-style: solid;
-        }
-
-        .tooltip.bottom::before {
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 0 10px 10px 10px;
-            border-color: transparent transparent #667eea transparent;
-        }
-
-        .tooltip.top::before {
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 10px 10px 0 10px;
-            border-color: #667eea transparent transparent transparent;
-        }
-
-        .tooltip.left::before {
-            right: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 10px 0 10px 10px;
-            border-color: transparent transparent transparent #667eea;
-        }
-
-        .tooltip.right::before {
-            left: -10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 10px 10px 10px 0;
-            border-color: transparent #667eea transparent transparent;
-        }
-
-        .tooltip-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .tooltip-icon {
-            width: 30px;
-            height: 30px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .tooltip-title {
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .tooltip-content {
-            margin-bottom: 20px;
-        }
-
-        .tooltip-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .step-counter {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .tooltip-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background: white;
-            color: #667eea;
-        }
-
-        .btn-primary:hover {
-            background: #f1f5f9;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .btn-activate {
-            background: #2563eb;
-            color: white;
-            margin: 10px;
-        }
-
-        .btn-activate:hover {
-            background: #1e40af;
-        }
-
-        .btn-export {
-            background: #10b981;
-            color: white;
-            margin: 10px;
-        }
-
-        .btn-export:hover {
-            background: #059669;
-        }
-
-        .progress-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: rgba(255,255,255,0.3);
-            z-index: 1001;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #10b981, #06d6a0);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        .achievement-popup {
-            position: fixed;
-            top: 20px;
-            right: -400px;
-            background: linear-gradient(135deg, #10b981, #06d6a0);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: right 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1002;
-            max-width: 300px;
-        }
-
-        .achievement-popup.show {
-            right: 20px;
-        }
-
-        .badge {
-            width: 50px;
-            height: 50px;
-            background: #f59e0b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.4);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .highlight {
-            position: relative;
-            z-index: 1001;
-            box-shadow: 0 0 0 2px #667eea, 0 0 20px rgba(102, 126, 234, 0.5);
-            border-radius: 8px;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
-            40%, 43% { transform: translateY(-10px); }
-            70% { transform: translateY(-5px); }
-            90% { transform: translateY(-2px); }
-        }
-
-        .achievement-popup.show .badge {
-            animation: bounce 1s ease;
-        }
-
-        .tour-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        .tour-btn {
-            padding: 12px 20px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .tour-btn:hover {
-            background: #1e40af;
-            transform: translateY(-2px);
-        }
-
-        .stats-panel {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            z-index: 1000;
-            min-width: 250px;
-        }
-
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .stat-item:last-child {
-            border-bottom: none;
-        }
-
-        .achievements-earned {
-            background: #f0fdf4;
-            border: 1px solid #10b981;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-
-        .achievement-badge {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin: 2px;
-        }
-
-        .confidence-meter {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .confidence-bar {
-            width: 100%;
-            height: 20px;
-            background: #e2e8f0;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f59e0b, #10b981);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-
-        .confidence-text {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 5px;
-        }
+        /* Global Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Base Styles */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; overflow-x: hidden; }
+
+        .dashboard { background: white; margin: 20px; border-radius: 18px; box-shadow: 0 16px 40px rgba(0,0,0,0.13); min-height: calc(100vh - 40px); position: relative; border: 2px solid #e0e7ff; }
+        .header { background: linear-gradient(90deg, #2563eb 60%, #667eea 100%); color: white; padding: 28px 20px 20px 32px; border-radius: 18px 18px 0 0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 16px rgba(38,99,235,0.08); }
+        .logo { font-size: 28px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 2px 8px rgba(38,99,235,0.12); }
+        .user-info { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+        .sidebar { position: absolute; left: 0; top: 70px; width: 250px; background: #f8fafc; height: calc(100% - 70px); border-right: 1px solid #e2e8f0; padding: 20px 0; box-shadow: 2px 0 12px rgba(102,126,234,0.04); }
+        .menu-item { padding: 14px 24px; cursor: pointer; transition: all 0.3s cubic-bezier(.4,1.3,.6,1); border-left: 3px solid transparent; font-size: 17px; border-radius: 0 20px 20px 0; margin-bottom: 6px; }
+        .menu-item:hover { background: #e0e7ff; border-left-color: #2563eb; transform: translateX(6px) scale(1.04); }
+        .menu-item.predictive { background: linear-gradient(90deg, #fef3c7 80%, #fde68a 100%); border-left-color: #f59e0b; font-weight: 600; }
+        .menu-item.active { background: linear-gradient(90deg, #e0e7ff 80%, #c7d2fe 100%); border-left-color: #2563eb; font-weight: 600; }
+        .main-content { margin-left: 250px; padding: 36px 40px; position: relative; min-height: 600px; }
+
+        /* Analytics Module */
+        .analytics-module { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 14px; padding: 48px 32px; text-align: center; margin-top: 28px; transition: all 0.3s ease; box-shadow: 0 2px 12px rgba(16,185,129,0.04); }
+        .analytics-module.activated { border-color: #10b981; background: linear-gradient(90deg, #f0fdf4 80%, #d1fae5 100%); box-shadow: 0 4px 24px rgba(16,185,129,0.10); }
+        .chart-placeholder { width: 100%; height: 300px; background: linear-gradient(45deg, #e2e8f0, #f1f5f9); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #64748b; margin: 24px 0; transition: all 0.5s ease; box-shadow: 0 2px 8px rgba(100,116,139,0.04); }
+        .chart-active { background: linear-gradient(45deg, #10b981, #06d6a0); color: white; flex-direction: column; gap: 10px; box-shadow: 0 4px 24px rgba(16,185,129,0.10); }
+        .chart-bars { display: flex; align-items: flex-end; height: 160px; gap: 18px; justify-content: center; margin-bottom: 12px; }
+        .chart-bar { width: 32px; background: linear-gradient(180deg, #fef3c7 0%, #f59e0b 100%); border-radius: 8px 8px 0 0; box-shadow: 0 2px 8px rgba(245,158,11,0.10); transition: height 0.7s cubic-bezier(.4,1.3,.6,1); height: var(--bar-height, 60%); display: flex; align-items: flex-end; justify-content: center; position: relative; }
+        .chart-bar::after { content: attr(data-value) '%'; position: absolute; top: -28px; left: 50%; transform: translateX(-50%); font-size: 13px; color: #f59e0b; font-weight: bold; opacity: 0.8; }
+
+        /* Tooltip & Overlay */
+        .tooltip { position: absolute; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 28px 24px; border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); max-width: 370px; z-index: 2000; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-size: 15px; line-height: 1.6; border: 2px solid #e0e7ff; }
+        .tooltip.active { opacity: 1; transform: translateY(0); }
+        .tooltip-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .tooltip-icon { font-size: 28px; }
+        .tooltip-title { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
+        .tooltip-footer { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+        .step-counter { font-size: 13px; color: #c7d2fe; margin-bottom: 6px; }
+        .tooltip-buttons { display: flex; gap: 10px; }
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.2s; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1e40af; transform: translateY(-2px) scale(1.04); }
+        .btn-secondary { background: #e0e7ff; color: #2563eb; }
+        .btn-secondary:hover { background: #c7d2fe; color: #1e40af; }
+        .overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .overlay.active { opacity: 1; visibility: visible; }
+
+        /* Achievement Popup */
+        .achievement-popup { position: fixed; top:20px; right:-400px; background: linear-gradient(135deg, #10b981, #06d6a0); color: white; padding:24px 20px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2); transition:right 0.5s cubic-bezier(0.175,0.885,0.32,1.275); z-index:1001; max-width:320px; border: 2px solid #f59e0b; }
+        .achievement-popup.show { right:32px; }
+        .badge { width:56px; height:56px; background:#f59e0b; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:12px; animation: bounce 1s ease; border: 2px solid #fffbe6; box-shadow: 0 2px 8px #f59e0b33; }
+        @keyframes bounce { 0%,20%,53%,80%,100%{transform:translateY(0);}40%,43%{transform:translateY(-10px);}70%{transform:translateY(-5px);}90%{transform:translateY(-2px);} }
+
+        /* Tour Controls & Stats */
+        .tour-controls { position: fixed; bottom:24px; right:24px; display:flex; gap:14px; z-index:1000; }
+        .tour-btn { padding:14px 24px; background:#2563eb; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:700; font-size: 17px; box-shadow: 0 2px 8px #2563eb22; transition: all 0.3s cubic-bezier(.4,1.3,.6,1); }
+        .tour-btn:hover { background: #1e40af; transform: translateY(-2px) scale(1.04); }
+        .stats-panel { position: fixed; top:90px; right:32px; background:white; padding:24px 20px; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.10); z-index:1000; min-width:260px; border: 2px solid #e0e7ff; }
+        .stat-item { display:flex; justify-content:space-between; margin-bottom:12px; font-size: 16px; }
+        .achievements-earned { margin-top:18px; font-size: 15px; }
+        .achievement-badge { display: inline-block; background: #fef3c7; color: #b45309; border-radius: 8px; padding: 4px 10px; margin: 2px 4px 2px 0; font-size: 15px; font-weight: 600; box-shadow: 0 1px 4px #f59e0b11; }
+
+        /* Responsive */
+        @media (max-width:1100px){ .main-content{padding:15px;} .stats-panel{right:10px; top:70px; min-width:180px; padding:10px;} }
+        @media (max-width:900px){ .sidebar{width:180px; padding:10px 0;} .main-content{margin-left:180px;} }
+        @media (max-width:700px){
+            .sidebar{position:fixed; left:0; top:0; width:100vw; height:50px; display:flex; padding:0 5px; border-radius:0 0 18px 18px; border-bottom:1px solid #e2e8f0;}
+            .menu-item{flex:1; padding:10px 5px; font-size:13px; text-align:center; border-bottom:3px solid transparent; border-radius:0; margin-bottom:0;}
+            .menu-item:hover, .menu-item.active{background:#e0e7ff; border-bottom-color:#2563eb;}
+            .main-content{margin-top:60px; margin-left:0; padding:10px;}
+            .dashboard{margin:5px;}
+            .header{flex-direction:column; align-items:flex-start; padding:10px;}
+            .stats-panel, .tour-controls{position:static; width:100%; margin:10px 0; flex-direction:column; gap:5px;}
+        }
+        @media (max-width:500px){ .header{font-size:16px; padding:6px;} .logo{font-size:18px;} .user-info{font-size:12px;} .main-content, .dashboard{padding:2vw; margin:0;} .analytics-module{padding:10px;} .chart-placeholder{height:160px; font-size:13px;} .tooltip{max-width:95vw; padding:10px; font-size:12px;} }
     </style>
 </head>
 <body>
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-    </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    <div class="achievement-popup" id="achievementPopup">
-        <div class="badge" id="achievementBadge">🏆</div>
-        <h3 id="achievementTitle">¡Felicitaciones!</h3>
-        <p id="achievementText">Has desbloqueado una nueva insignia</p>
-    </div>
-
-    <div class="stats-panel" id="statsPanel">
-        <h3 style="margin-bottom: 15px; color: #2563eb;">📊 Estadísticas del Tour</h3>
-        <div class="stat-item">
-            <span>Progreso:</span>
-            <span id="progressText">0%</span>
-        </div>
-        <div class="stat-item">
-            <span>Paso actual:</span>
-            <span id="currentStepText">0/4</span>
-        </div>
-        <div class="stat-item">
-            <span>Insignias:</span>
-            <span id="badgesText">0/4</span>
-        </div>
-        <div class="stat-item">
-            <span>Nivel:</span>
-            <span id="confidenceLevel">Principiante</span>
-        </div>
-        
-        <div class="confidence-meter">
-            <strong>🎯 Medidor de Confianza:</strong>
-            <div class="confidence-bar">
-                <div class="confidence-fill" id="confidenceFill"></div>
-            </div>
-            <div class="confidence-text" id="confidenceText">Confianza: 0% - Principiante</div>
-        </div>
-        
-        <div class="achievements-earned">
-            <strong>🏆 Insignias Obtenidas:</strong>
-            <div id="badgesList"></div>
-        </div>
-    </div>
-
-    <div class="tour-controls">
-        <button class="tour-btn" id="startTourBtn" onclick="startTour()">🎯 Iniciar Tour</button>
-        <button class="tour-btn" id="resetTourBtn" onclick="resetTour()">🔄 Reiniciar</button>
-    </div>
-
-    <div class="dashboard">
-        <div class="header">
-            <div class="logo">SIIGO</div>
-            <div class="user-info">
-                <span>Bienvenido, María</span>
-                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">👩‍💼</div>
-            </div>
-        </div>
-
-        <div class="sidebar">
-            <div class="menu-item" id="contabilidad">📊 Contabilidad</div>
-            <div class="menu-item" id="facturacion">📋 Facturación</div>
-            <div class="menu-item" id="inventarios">📦 Inventarios</div>
-            <div class="menu-item predictive" id="analitica">🔮 Analítica Predictiva</div>
-            <div class="menu-item" id="reportes">📈 Reportes</div>
-            <div class="menu-item" id="configuracion">⚙️ Configuración</div>
-        </div>
-
-        <div class="main-content">
-            <h1>Dashboard Principal</h1>
-            <p style="color: #64748b; margin-bottom: 20px;">Gestiona tu negocio de manera inteligente</p>
-            
-            <div class="analytics-module" id="analyticsModule">
-                <h2>Módulo de Analítica Predictiva</h2>
-                <p style="color: #64748b; margin: 10px 0;">Descubre insights poderosos sobre tu flujo de caja</p>
-                
-                <div class="chart-placeholder" id="chartArea">
-                    <span>Haz clic en "Activar" para generar tu primera predicción</span>
-                </div>
-                
-                <button class="btn btn-activate" id="activateBtn" onclick="activateAnalytics()">
-                    Activar Analítica Predictiva
-                </button>
-                
-                <button class="btn btn-export" id="exportBtn" style="display: none;" onclick="exportToPowerPoint()">
-                    📊 Exportar a PowerPoint
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tooltips -->
-    <div class="tooltip bottom" id="tooltip1" style="top: 120px; left: 50px;">
-        <div class="tooltip-header">
-            <div class="tooltip-icon">👋</div>
-            <div class="tooltip-title">¡Bienvenido, Analista en potencia!</div>
-        </div>
-        <div class="tooltip-content">
-            Hola María, soy tu Coach Predictivo. Te guiaré paso a paso para activar y usar la analítica que transformará tu toma de decisiones. ¡No temas, es más fácil de lo que piensas!
-        </div>
-        <div class="tooltip-footer">
-            <div class="step-counter">Paso 1 de 4</div>
-            <div class="tooltip-buttons">
-                <button class="btn btn-secondary" onclick="skipTour()">Saltar</button>
-                <button class="btn btn-primary" onclick="nextStep()">¡Comenzar!</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="tooltip right" id="tooltip2" style="top: 300px; left: 270px;">
-        <div class="tooltip-header">
-            <div class="tooltip-icon">🔮</div>
-            <div class="tooltip-title">Descubre tu nuevo superpoder</div>
-        </div>
-        <div class="tooltip-content">
-            Este es tu módulo de Analítica Predictiva. Aquí podrás ver el futuro de tu flujo de caja, identificar tendencias y tomar decisiones informadas. ¡Mira cómo brilla en amarillo para llamar tu atención!
-        </div>
-        <div class="tooltip-footer">
-            <div class="step-counter">Paso 2 de 4</div>
-            <div class="tooltip-buttons">
-                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
-                <button class="btn btn-primary" onclick="nextStep()">Explorar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="tooltip top" id="tooltip3" style="top: 550px; left: 550px;">
-        <div class="tooltip-header">
-            <div class="tooltip-icon">🚀</div>
-            <div class="tooltip-title">Activa tu primera predicción</div>
-        </div>
-        <div class="tooltip-content">
-            ¡Tranquila! Este botón es completamente seguro. Al hacer clic, generaremos tu primer gráfico predictivo sin afectar tus datos existentes. Es como tener una bola de cristal para tu negocio.
-        </div>
-        <div class="tooltip-footer">
-            <div class="step-counter">Paso 3 de 4</div>
-            <div class="tooltip-buttons">
-                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
-                <button class="btn btn-primary" onclick="activateAnalytics()">Activar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="tooltip left" id="tooltip4" style="top: 400px; left: 450px;">
-        <div class="tooltip-header">
-            <div class="tooltip-icon">📊</div>
-            <div class="tooltip-title">¡Increíble! Tu reporte está listo</div>
-        </div>
-        <div class="tooltip-content">
-            ¿Ves qué fácil fue? Ahora tienes una predicción de tu flujo de caja para los próximos 30 días. Con un solo clic, puedes exportar un PowerPoint profesional con tu logo y gráficos listos para la junta directiva.
-        </div>
-        <div class="tooltip-footer">
-            <div class="step-counter">Paso 4 de 4</div>
-            <div class="tooltip-buttons">
-                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
-                <button class="btn btn-primary" onclick="completeTour()">¡Finalizar!</button>
-            </div>
-        </div>
-    </div>
-
+    <div id="app"></div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const totalSteps = 4;
-            let currentStep = 0;
-            const achievements = [
-                { title: 'Explorador Valiente', text: '¡Comenzaste tu viaje hacia la analítica predictiva!', icon: '🚀', confidence: 25 },
-                { title: 'Descubridor de Tesoros', text: '¡Encontraste el módulo que cambiará tu negocio!', icon: '🔍', confidence: 50 },
-                { title: 'Activador Intrépido', text: '¡Venciste el miedo y activaste tu primer análisis!', icon: '⚡', confidence: 75 },
-                { title: 'Maestra Analista', text: '¡Dominas la analítica predictiva como una experta!', icon: '🎯', confidence: 100 }
-            ];
+    (function(){
+        const steps = [
+            { title: '¡Bienvenida, María!', content: 'Soy tu Coach Predictivo. Te guiaré paso a paso para activar y usar la analítica que transformará tu toma de decisiones. ¡No temas, es más fácil de lo que piensas!', target: '.logo', position: 'bottom', icon: '👋', btns: ['Saltar', '¡Comenzar!'] },
+            { title: 'Contabilidad', content: 'Visualiza tus balances, ingresos y egresos de manera clara y sencilla. ¡Toma el control de tus finanzas!', target: '#contabilidad', position: 'right', icon: '📊', btns: ['Atrás', 'Siguiente'] },
+            { title: 'Facturación', content: 'Crea, envía y gestiona facturas electrónicas en segundos. Descubre reportes de ventas y cobros pendientes.', target: '#facturacion', position: 'right', icon: '📋', btns: ['Atrás', 'Siguiente'] },
+            { title: 'Inventarios', content: 'Consulta el stock de tus productos, recibe alertas de bajo inventario y analiza tendencias de ventas.', target: '#inventarios', position: 'right', icon: '📦', btns: ['Atrás', 'Siguiente'] },
+            { title: 'Analítica Predictiva', content: 'Obtén predicciones de flujo de caja, identifica oportunidades y recibe recomendaciones inteligentes.', target: '#analitica', position: 'right', icon: '🔮', btns: ['Atrás', 'Siguiente'] },
+            { title: 'Reportes', content: 'Genera reportes personalizados de desempeño, ventas y proyecciones para tu negocio.', target: '#reportes', position: 'right', icon: '📈', btns: ['Atrás', 'Siguiente'] },
+            { title: 'Configuración', content: 'Personaliza tu experiencia, gestiona usuarios y ajusta parámetros de tu empresa.', target: '#configuracion', position: 'right', icon: '⚙️', btns: ['Atrás', 'Finalizar'] }
+        ];
+        const achievements = [
+            { title: 'Explorador Valiente', text: '¡Comenzaste tu viaje!', icon: '🚀' },
+            { title: 'Contable Pro', text: '¡Exploraste Contabilidad!', icon: '📊' },
+            { title: 'Facturador', text: '¡Descubriste Facturación!', icon: '📋' },
+            { title: 'Inventario Maestro', text: '¡Revisaste Inventarios!', icon: '📦' },
+            { title: 'Analista', text: '¡Probaste Analítica Predictiva!', icon: '🔮' },
+            { title: 'Reportero', text: '¡Generaste un reporte!', icon: '📈' },
+            { title: 'Configurador', text: '¡Personalizaste la plataforma!', icon: '⚙️' }
+        ];
+        let currentStep = 0, completed = false, autoTour = false;
 
-            // Elementos UI
-            const progressBar = document.getElementById('progressBar');
-            const overlay = document.getElementById('overlay');
-            const badgesList = document.getElementById('badgesList');
-            const stats = {
-                progressText: document.getElementById('progressText'),
-                currentStepText: document.getElementById('currentStepText'),
-                badgesText: document.getElementById('badgesText'),
-                confidenceLevel: document.getElementById('confidenceLevel')
-            };
-            const confidenceFill = document.getElementById('confidenceFill');
-            const confidenceText = document.getElementById('confidenceText');
-            const achievementPopup = document.getElementById('achievementPopup');
-            const achievementBadge = document.getElementById('achievementBadge');
-            const achievementTitle = document.getElementById('achievementTitle');
-            const achievementText = document.getElementById('achievementText');
-
-            function updateUI() {
-                const prog = Math.round((currentStep / totalSteps) * 100);
-                progressBar.style.width = prog + '%';
-                stats.progressText.textContent = prog + '%';
-                stats.currentStepText.textContent = `${currentStep}/${totalSteps}`;
-                stats.badgesText.textContent = currentStep + '/' + totalSteps;
-                stats.confidenceLevel.textContent = ['Principiante','Aprendiz','Competente','Experta'][Math.floor(currentStep)];
-                
-                // Actualizar insignias
-                badgesList.innerHTML = '';
-                for (let i = 0; i < currentStep; i++) {
-                    const span = document.createElement('span');
-                    span.className = 'achievement-badge';
-                    span.textContent = achievements[i].icon + ' ' + achievements[i].title;
-                    badgesList.appendChild(span);
+        function renderApp() {
+            document.body.innerHTML = `
+                <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+                <div class="overlay" id="overlay"></div>
+                <div class="achievement-popup" id="achievementPopup">
+                    <div class="badge" id="achievementBadge">🏆</div>
+                    <h3 id="achievementTitle">¡Felicitaciones!</h3>
+                    <p id="achievementText">Has desbloqueado una nueva insignia</p>
+                </div>
+                <div class="stats-panel" id="statsPanel">
+                    <h3 style="margin-bottom:15px; color:#2563eb;">📊 Estadísticas del Tour</h3>
+                    <div class="stat-item"><span>Progreso:</span><span id="progressText">0%</span></div>
+                    <div class="stat-item"><span>Paso actual:</span><span id="currentStepText">0/${steps.length}</span></div>
+                    <div class="stat-item"><span>Insignias:</span><span id="badgesText">0/${steps.length}</span></div>
+                    <div class="stat-item"><span>Nivel:</span><span id="confidenceLevel">Principiante</span></div>
+                    <div class="achievements-earned"><strong>🏆 Insignias Obtenidas:</strong><div id="badgesList"></div></div>
+                </div>
+                <div class="tour-controls">
+                  <button class="tour-btn" id="autoTourBtn">🤖 Tour Automático</button>
+                  <button class="tour-btn" id="resetTourBtn">🔄 Reiniciar</button>
+                </div>
+                <div class="dashboard">
+                    <div class="header">
+                        <div class="logo">SIIGO</div>
+                        <div class="user-info"><span>Bienvenido, María</span><div style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">👩‍💼</div></div>
+                    </div>
+                    <div class="sidebar">
+        <div class="menu-item" id="contabilidad"> <img src="https://img.icons8.com/color/32/accounting.png" style="vertical-align:middle;margin-right:8px;"> Contabilidad</div>
+        <div class="menu-item" id="facturacion"> <img src="https://img.icons8.com/color/32/invoice.png" style="vertical-align:middle;margin-right:8px;"> Facturación</div>
+        <div class="menu-item" id="inventarios"> <img src="https://img.icons8.com/color/32/parcel-shelf.png" style="vertical-align:middle;margin-right:8px;"> Inventarios</div>
+        <div class="menu-item predictive" id="analitica"> <img src="https://img.icons8.com/color/32/artificial-intelligence.png" style="vertical-align:middle;margin-right:8px;"> <b>Analítica Predictiva</b></div>
+        <div class="menu-item" id="reportes"> <img src="https://img.icons8.com/color/32/combo-chart--v1.png" style="vertical-align:middle;margin-right:8px;"> Reportes</div>
+        <div class="menu-item" id="configuracion"> <img src="https://img.icons8.com/color/32/settings--v1.png" style="vertical-align:middle;margin-right:8px;"> Configuración</div>
+                    </div>
+                    <div class="main-content" id="mainContent">
+                        <h1>Dashboard Principal</h1>
+                        <p style="color:#64748b; margin-bottom:20px;">Gestiona tu negocio de manera inteligente</p>
+                        <div class="analytics-module" id="analyticsModule">
+                            <h2>Módulo de Analítica Predictiva</h2>
+                            <p style="color:#64748b; margin:10px 0;">Descubre insights poderosos sobre tu flujo de caja</p>
+                            <div class="chart-placeholder" id="chartArea"><span>Haz clic en "Activar" para generar tu primera predicción</span></div>
+                            <button class="btn btn-activate" id="activateBtn">Activar Analítica Predictiva</button>
+                            <button class="btn btn-export" id="exportBtn" style="display:none;">📊 Exportar a PowerPoint</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="tourTooltip"></div>`;
+            // document.getElementById('startTourBtn').onclick = startTour;
+            document.getElementById('autoTourBtn').onclick = startAutoTour;
+            document.getElementById('resetTourBtn').onclick = resetTour;
+            document.getElementById('activateBtn').onclick = activateAnalytics;
+            document.getElementById('exportBtn').onclick = exportToPowerPoint;
+            ['contabilidad','facturacion','inventarios','analitica','reportes','configuracion'].forEach(id => {
+                document.getElementById(id).onclick = () => showSection(id);
+            });
+            updateStats();
+        }
+        function startTour() { currentStep = 0; completed = false; autoTour = false; showStep(0); }
+        function startAutoTour() { currentStep = 0; completed = false; autoTour = true; showStep(0); }
+        function showStep(idx) {
+            currentStep = idx;
+            const step = steps[idx]; if (!step) return;
+            // Si es autoTour y el paso no es el primero, mostrar la sección correspondiente
+            if (autoTour && idx > 0) {
+                const sectionId = step.target.startsWith('#') ? step.target.slice(1) : null;
+                if (sectionId) {
+                    showSection(sectionId, true); // true: modo tour, no resetear tour
                 }
-                
-                // Actualizar medidor de confianza
-                const confVal = achievements[Math.max(0, currentStep-1)]?.confidence || 0;
-                confidenceFill.style.width = confVal + '%';
-                confidenceText.textContent = `Confianza: ${confVal}% - ${['Principiante','Aprendiz','Competente','Experta'][Math.floor(confVal/25)]}`;
+            } else if (!autoTour || idx === 0) {
+                // Si no es autoTour o es el primer paso, mostrar dashboard normal
+                if (document.getElementById('mainContent') && idx === 0) renderApp();
             }
-
-            function showTooltip(step) {
-                document.querySelectorAll('.tooltip').forEach(t => t.classList.remove('active'));
-                if (step > 0 && step <= totalSteps) {
-                    document.getElementById(`tooltip${step}`).classList.add('active');
-                    overlay.classList.add('active');
-                    highlightStep(step);
-                } else {
-                    overlay.classList.remove('active');
-                }
-                updateUI();
-            }
-
-            function highlightStep(step) {
-                document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight', 'pulse'));
-                if (step === 2) document.getElementById('analitica').classList.add('highlight');
-                if (step === 3) document.getElementById('activateBtn').classList.add('highlight', 'pulse');
-                if (step === 4) {
-                    const exportBtn = document.getElementById('exportBtn');
-                    exportBtn.style.display = 'inline-block';
-                    exportBtn.classList.add('highlight', 'pulse');
-                }
-            }
-
-            function showAchievement(step) {
-                if (step > 0 && step <= achievements.length) {
-                    const achievement = achievements[step - 1];
-                    achievementBadge.textContent = achievement.icon;
-                    achievementTitle.textContent = achievement.title;
-                    achievementText.textContent = achievement.text;
-                    achievementPopup.classList.add('show');
-                    setTimeout(() => achievementPopup.classList.remove('show'), 4000);
-                }
-            }
-
-            window.startTour = () => {
-                currentStep = 1;
-                showTooltip(currentStep);
-                showAchievement(currentStep);
-            };
-
-            window.nextStep = () => {
-                if (currentStep < totalSteps) {
-                    currentStep++;
-                    showTooltip(currentStep);
-                    showAchievement(currentStep);
-                }
-            };
-
-            window.prevStep = () => {
-                if (currentStep > 1) {
-                    currentStep--;
-                    showTooltip(currentStep);
-                }
-            };
-
-            window.skipTour = () => {
-                currentStep = 0;
-                showTooltip(0);
-            };
-
-            window.resetTour = () => {
-                currentStep = 0;
-                document.getElementById('exportBtn').style.display = 'none';
-                document.getElementById('analyticsModule').classList.remove('activated');
-                document.getElementById('chartArea').innerHTML = '<span>Haz clic en "Activar" para generar tu primera predicción</span>';
-                document.getElementById('chartArea').classList.remove('chart-active');
-                updateUI();
-            };
-
-            window.activateAnalytics = () => {
-                const module = document.getElementById('analyticsModule');
-                module.classList.add('activated');
-                const chart = document.getElementById('chartArea');
-                chart.innerHTML = '<div class="chart-content"><div class="chart-bars">' +
-                    [80,50,90,60,70].map(h => `<div class="chart-bar" style="--bar-height:${h}%"></div>`).join('') +
-                    '</div><div>📈 Predicción de Flujo de Caja - Proyección: +15% este mes</div></div>';
-                chart.classList.add('chart-active');
-                
-                document.getElementById('exportBtn').style.display = 'inline-block';
-                
-                // Continuar al siguiente paso
+            const tooltip = document.getElementById('tourTooltip');
+            tooltip.innerHTML = renderTooltip(step, idx);
+            tooltip.style.display = 'block';
+            setTimeout(() => tooltip.classList.add('active'), 10);
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            const tgt = document.querySelector(step.target); if (tgt) tgt.classList.add('highlight');
+            tooltip.querySelectorAll('button').forEach((btn,i)=> btn.onclick = () => handleStepBtn(step.btns[i], idx));
+            document.getElementById('overlay').classList.add('active');
+            updateStats();
+            // Auto-tour: avanza automáticamente cada 2.5s
+            if (autoTour) {
                 setTimeout(() => {
-                    nextStep();
-                }, 1000);
-            };
+                    if (idx < steps.length-1) {
+                        unlockAchievement(idx);
+                        showStep(idx+1);
+                    } else {
+                        unlockAchievement(idx);
+                        endTour();
+                    }
+                }, 2500);
+            }
+        }
+        function handleStepBtn(btn, idx) {
+            if (btn === 'Saltar') return endTour();
+            if (btn === 'Atrás') return idx > 0 && showStep(idx-1);
+            if (btn === 'Siguiente' || btn === '¡Comenzar!') { unlockAchievement(idx); return idx < steps.length-1 ? showStep(idx+1) : endTour(); }
+            if (btn === 'Finalizar') { unlockAchievement(idx); endTour(); }
+        }
+        function unlockAchievement(idx) { if (!achievements[idx].unlocked) { achievements[idx].unlocked = true; showAchievement(idx); }}
+        function showAchievement(idx) { const pop = document.getElementById('achievementPopup'); document.getElementById('achievementBadge').textContent = achievements[idx].icon; document.getElementById('achievementTitle').textContent = achievements[idx].title; document.getElementById('achievementText').textContent = achievements[idx].text; pop.classList.add('show'); setTimeout(() => pop.classList.remove('show'), 3000); updateStats(); }
+        function endTour() { document.getElementById('tourTooltip').style.display = 'none'; document.getElementById('overlay').classList.remove('active'); document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight')); completed = true; autoTour = false; updateStats(); }
+        function renderTooltip(step, idx) { return `<div class="tooltip ${step.position}"><div class="tooltip-header"><div class="tooltip-icon">${step.icon}</div><div class="tooltip-title">${step.title}</div></div><div class="tooltip-content">${step.content}</div><div class="tooltip-footer"><div class="step-counter">Paso ${idx+1} de ${steps.length}</div><div class="tooltip-buttons">${step.btns.map(b => `<button class="btn ${b==='Atrás'||b==='Saltar'?'btn-secondary':'btn-primary'}">${b}</button>`).join('')}</div></div></div>`; }
+        function updateStats() { const done = achievements.filter(a => a.unlocked).length; const prog = Math.round(done/steps.length*100); document.getElementById('progressBar').style.width = prog+'%'; document.getElementById('progressText').textContent = prog+'%'; document.getElementById('currentStepText').textContent = `${completed ? steps.length : currentStep+1}/${steps.length}`; document.getElementById('badgesText').textContent = `${done}/${steps.length}`; document.getElementById('confidenceLevel').textContent = ['Principiante','Aprendiz','Competente','Experta','Maestra','Leyenda','Coach'][done] || 'Principiante'; const bl = document.getElementById('badgesList'); bl.innerHTML = ''; achievements.forEach(a => { if (a.unlocked) { const s = document.createElement('span'); s.className = 'achievement-badge'; s.textContent = `${a.icon} ${a.title}`; bl.appendChild(s); }}); }
+        function showSection(id, isTour) {
+            const s = steps.find(s => s.target === '#'+id);
+            const mc = document.getElementById('mainContent');
+            if (!s || !mc) return;
+            let html = '';
+            if (id === 'contabilidad') {
+                html = `<h1>Contabilidad</h1>
+                <p style='color:#64748b; margin-bottom:20px;'>Visualiza balances, ingresos y egresos. Accede a tu balance general, estado de resultados y movimientos contables.</p>
+                <div style='display:flex;gap:24px;flex-wrap:wrap;'>
+                  <div style='background:#e0e7ff;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #2563eb11;'>
+                    <b>Balance General</b><br><span style='font-size:22px;color:#2563eb;'>$ 120,000</span>
+                  </div>
+                  <div style='background:#fef3c7;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #f59e0b11;'>
+                    <b>Ingresos</b><br><span style='font-size:22px;color:#f59e0b;'>$ 45,000</span>
+                  </div>
+                  <div style='background:#fee2e2;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #ef444411;'>
+                    <b>Egresos</b><br><span style='font-size:22px;color:#ef4444;'>$ 18,000</span>
+                  </div>
+                </div>
+                <div style='margin-top:28px;'>
+                  <b>Movimientos recientes</b>
+                  <table style='width:100%;margin-top:10px;background:white;border-radius:8px;box-shadow:0 1px 4px #64748b11;'>
+                    <tr style='background:#f1f5f9;'><th>Fecha</th><th>Concepto</th><th>Monto</th></tr>
+                    <tr><td>10/07/2025</td><td>Venta</td><td style='color:#10b981;'>+ $2,000</td></tr>
+                    <tr><td>09/07/2025</td><td>Pago Proveedor</td><td style='color:#ef4444;'>- $1,200</td></tr>
+                    <tr><td>08/07/2025</td><td>Compra Insumos</td><td style='color:#ef4444;'>- $800</td></tr>
+                  </table>
+                </div>`;
+            } else if (id === 'facturacion') {
+                html = `<h1>Facturación</h1>
+                <p style='color:#64748b; margin-bottom:20px;'>Crea, envía y gestiona facturas electrónicas. Consulta el historial y estado de tus facturas.</p>
+                <button class='btn btn-primary' style='margin-bottom:18px;' onclick='alert("Simulación: Factura creada y enviada.")'>+ Nueva Factura</button>
+                <div style='background:#f1f5f9;border-radius:10px;padding:18px;'>
+                  <b>Facturas Recientes</b>
+                  <table style='width:100%;margin-top:10px;'>
+                    <tr style='background:#e0e7ff;'><th>N°</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Total</th></tr>
+                    <tr><td>F-1021</td><td>Acme S.A.</td><td>10/07/2025</td><td style='color:#10b981;'>Pagada</td><td>$1,200</td></tr>
+                    <tr><td>F-1020</td><td>Beta Ltda.</td><td>09/07/2025</td><td style='color:#f59e0b;'>Pendiente</td><td>$800</td></tr>
+                  </table>
+                </div>`;
+            } else if (id === 'inventarios') {
+                html = `<h1>Inventarios</h1>
+                <p style='color:#64748b; margin-bottom:20px;'>Consulta el stock de tus productos y recibe alertas de bajo inventario.</p>
+                <div style='display:flex;gap:24px;flex-wrap:wrap;'>
+                  <div style='background:#f0fdf4;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #10b98111;'>
+                    <b>Producto</b>: Laptop<br><b>Stock:</b> <span style='color:#10b981;font-size:20px;'>12</span>
+                  </div>
+                  <div style='background:#fee2e2;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #ef444411;'>
+                    <b>Producto</b>: Mouse<br><b>Stock:</b> <span style='color:#ef4444;font-size:20px;'>2</span> <span style='background:#ef4444;color:white;border-radius:6px;padding:2px 8px;font-size:12px;margin-left:8px;'>Bajo</span>
+                  </div>
+                  <div style='background:#e0e7ff;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #2563eb11;'>
+                    <b>Producto</b>: Teclado<br><b>Stock:</b> <span style='color:#2563eb;font-size:20px;'>7</span>
+                  </div>
+                </div>`;
+            } else if (id === 'analitica') {
+                html = `<h1>Analítica Predictiva</h1>
+                <p style='color:#64748b; margin-bottom:20px;'>Obtén predicciones de flujo de caja y recomendaciones inteligentes.</p>
+                <div style='background:#f0fdf4;border-radius:12px;padding:18px 24px;box-shadow:0 2px 8px #10b98111;'>
+                  <b>Predicción de flujo de caja:</b> <span style='color:#10b981;font-size:20px;'>+15% este mes</span><br>
+                  <b>Recomendación:</b> Considera invertir en inventario, se prevé aumento de ventas.
+                </div>
+                <div style='margin-top:18px;'>
+                  <b>Oportunidades detectadas:</b>
+                  <ul style='color:#2563eb;'>
+                    <li>Clientes con pagos recurrentes</li>
+                    <li>Productos con alta rotación</li>
+                  </ul>
+                </div>`;
+            } else if (id === 'reportes') {
+                html = `<h1>Reportes</h1>
+                <p style='color:#64748b; margin-bottom:20px;'>Genera reportes personalizados de desempeño, ventas y proyecciones.</p>
+                <button class='btn btn-primary' style='margin-bottom:18px;' onclick='alert("Simulación: Reporte generado y descargado.")'>+ Generar Reporte</button>
+                <div style='background:#e0e7ff;border-radius:10px;padding:18px;'>
+                  <b>Reportes Recientes</b>
+                  <ul style='margin-top:10px;'>
+                    <li>Ventas Mensuales - Julio 2025</li>
+                    <li>Proyección de Ingresos - Q3</li>
+                  </ul>
+                </div>`;
+            } else if (id === 'configuracion') {
+                html = `<h1>Configuración</h1>
+                <p style='color:#64748b; margin-bottom:20px;'>Personaliza tu experiencia, gestiona usuarios y ajusta parámetros de tu empresa.</p>
+                <div style='background:#f1f5f9;border-radius:10px;padding:18px;'>
+                  <b>Usuarios</b>
+                  <ul style='margin-top:10px;'>
+                    <li>María (Admin)</li>
+                    <li>Carlos (Contador)</li>
+                  </ul>
+                  <button class='btn btn-primary' style='margin-top:10px;' onclick='alert("Simulación: Usuario agregado.")'>+ Agregar Usuario</button>
+                </div>`;
+            }
+            if (!isTour) html += `<button class='btn btn-primary' id='backBtn' style='margin-top:28px;'>Volver al Dashboard</button>`;
+            mc.innerHTML = html;
+            if (!isTour && document.getElementById('backBtn')) document.getElementById('backBtn').onclick = renderApp;
+        }
+        function activateAnalytics() { const m = document.getElementById('analyticsModule'); m.classList.add('activated'); const ch = document.getElementById('chartArea'); const values = [80,50,90,60,70]; ch.innerHTML = `<div class=\"chart-content\"><div class=\"chart-bars\">${values.map(h => `<div class=\"chart-bar\" style=\"--bar-height:${h}%;\" data-value=\"${h}\"></div>`).join('')}</div><div>📈 Predicción de Flujo de Caja - Proyección: +15% este mes</div></div>`; ch.classList.add('chart-active'); document.getElementById('exportBtn').style.display = 'inline-block'; }
+        function exportToPowerPoint() { const btn = document.getElementById('exportBtn'); const txt = btn.textContent; btn.textContent = '⏳ Exportando...'; btn.disabled = true; setTimeout(() => { btn.textContent = '✅ ¡Exportado!'; setTimeout(() => { btn.textContent = txt; btn.disabled = false; alert('🎉 ¡Reporte exportado exitosamente!\n\nSe ha generado un archivo PowerPoint con la predicción de flujo de caja y el gráfico.'); }, 1500); }, 2000); }
+        function resetTour() { achievements.forEach(a => delete a.unlocked); completed = false; currentStep = 0; autoTour = false; renderApp(); }
+        // Lanzar confeti al finalizar el tour
+        function confetti() {
+            for(let i=0;i<80;i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.position = 'fixed';
+                c.style.left = Math.random()*100+'vw';
+                c.style.top = '-30px';
+                c.style.width = '10px';
+                c.style.height = '18px';
+                c.style.background = `hsl(${Math.random()*360},90%,60%)`;
+                c.style.opacity = 0.7+Math.random()*0.3;
+                c.style.borderRadius = '4px';
+                c.style.zIndex = 3000;
+                c.style.transform = `rotate(${Math.random()*360}deg)`;
+                c.style.transition = 'top 2.2s cubic-bezier(.4,1.3,.6,1), left 2.2s cubic-bezier(.4,1.3,.6,1)';
+                document.body.appendChild(c);
+                setTimeout(()=>{
+                    c.style.top = 90+Math.random()*60+'vh';
+                    c.style.left = (parseFloat(c.style.left)+Math.random()*60-30)+'vw';
+                }, 10);
+                setTimeout(()=>c.remove(), 2400);
+            }
+        }
+        // Llama confetti al terminar el tour
+        const oldEndTour = endTour;
+        endTour = function() {
+            oldEndTour();
+            if (completed) confetti();
+        }
+        resetTour();
+        // Iniciar tour automático al cargar la página
+        setTimeout(() => {
+            startAutoTour();
+        }, 600);
+    })();
+    </script>
+</body>
+</html>
 
-            window.exportToPowerPoint = () => {
-                const btn = document.getElementById('exportBtn');
-                const originalText = btn.textContent;
-                
-                btn.textContent = '⏳ Exportando...';
-                btn.disabled = true;
-                
-                setTimeout(() => {
-                    btn.textContent = '✅ ¡Exportado!';
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.disabled = false;
-                        alert('🎉 ¡Reporte exportado exitosamente!\n\nSe ha generado un archivo PowerPoint con:\n✅ Tu logo empresarial\n✅ Gráficos de predicción\n✅ Análisis de tendencias\n✅ Recomendaciones personalizadas');
-                    }, 1500);
-                }, 2000);
-            };
-
-            window.completeTour = () => {
-                showAchievement(totalSteps);
-                setTimeout(() => {
-                    alert('🎉 ¡Felicitaciones María!\n\nHas completado exitosamente el Tour de Analítica Predictiva.\n\n🏆
