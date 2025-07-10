@@ -438,7 +438,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             z-index: 1000;
-            min-width: 200px;
+            min-width: 250px;
         }
 
         .stat-item {
@@ -470,6 +470,36 @@
             font-size: 12px;
             margin: 2px;
         }
+
+        .confidence-meter {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #10b981);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .confidence-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -493,13 +523,26 @@
         </div>
         <div class="stat-item">
             <span>Paso actual:</span>
-            <span id="currentStepText">0/5</span>
+            <span id="currentStepText">0/4</span>
         </div>
         <div class="stat-item">
             <span>Insignias:</span>
-            <span id="badgesText">0/5</span>
+            <span id="badgesText">0/4</span>
         </div>
-        <div class="achievements-earned" id="achievementsEarned">
+        <div class="stat-item">
+            <span>Nivel:</span>
+            <span id="confidenceLevel">Principiante</span>
+        </div>
+        
+        <div class="confidence-meter">
+            <strong>🎯 Medidor de Confianza:</strong>
+            <div class="confidence-bar">
+                <div class="confidence-fill" id="confidenceFill"></div>
+            </div>
+            <div class="confidence-text" id="confidenceText">Confianza: 0% - Principiante</div>
+        </div>
+        
+        <div class="achievements-earned">
             <strong>🏆 Insignias Obtenidas:</strong>
             <div id="badgesList"></div>
         </div>
@@ -540,11 +583,11 @@
                     <span>Haz clic en "Activar" para generar tu primera predicción</span>
                 </div>
                 
-                <button class="btn btn-activate" id="activateBtn">
+                <button class="btn btn-activate" id="activateBtn" onclick="activateAnalytics()">
                     Activar Analítica Predictiva
                 </button>
                 
-                <button class="btn btn-export" id="exportBtn" style="display: none;">
+                <button class="btn btn-export" id="exportBtn" style="display: none;" onclick="exportToPowerPoint()">
                     📊 Exportar a PowerPoint
                 </button>
             </div>
@@ -561,7 +604,7 @@
             Hola María, soy tu Coach Predictivo. Te guiaré paso a paso para activar y usar la analítica que transformará tu toma de decisiones. ¡No temas, es más fácil de lo que piensas!
         </div>
         <div class="tooltip-footer">
-            <div class="step-counter">Paso 1 de 5</div>
+            <div class="step-counter">Paso 1 de 4</div>
             <div class="tooltip-buttons">
                 <button class="btn btn-secondary" onclick="skipTour()">Saltar</button>
                 <button class="btn btn-primary" onclick="nextStep()">¡Comenzar!</button>
@@ -578,7 +621,7 @@
             Este es tu módulo de Analítica Predictiva. Aquí podrás ver el futuro de tu flujo de caja, identificar tendencias y tomar decisiones informadas. ¡Mira cómo brilla en amarillo para llamar tu atención!
         </div>
         <div class="tooltip-footer">
-            <div class="step-counter">Paso 2 de 5</div>
+            <div class="step-counter">Paso 2 de 4</div>
             <div class="tooltip-buttons">
                 <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
                 <button class="btn btn-primary" onclick="nextStep()">Explorar</button>
@@ -595,7 +638,7 @@
             ¡Tranquila! Este botón es completamente seguro. Al hacer clic, generaremos tu primer gráfico predictivo sin afectar tus datos existentes. Es como tener una bola de cristal para tu negocio.
         </div>
         <div class="tooltip-footer">
-            <div class="step-counter">Paso 3 de 5</div>
+            <div class="step-counter">Paso 3 de 4</div>
             <div class="tooltip-buttons">
                 <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
                 <button class="btn btn-primary" onclick="activateAnalytics()">Activar</button>
@@ -606,30 +649,13 @@
     <div class="tooltip left" id="tooltip4" style="top: 400px; left: 450px;">
         <div class="tooltip-header">
             <div class="tooltip-icon">📊</div>
-            <div class="tooltip-title">¡Increíble! Tu predicción está lista</div>
+            <div class="tooltip-title">¡Increíble! Tu reporte está listo</div>
         </div>
         <div class="tooltip-content">
-            ¿Ves qué fácil fue? Ahora tienes una predicción de tu flujo de caja para los próximos 30 días. Los gráficos te muestran tendencias claras: verde = ingresos crecientes, rojo = atención requerida.
+            ¿Ves qué fácil fue? Ahora tienes una predicción de tu flujo de caja para los próximos 30 días. Con un solo clic, puedes exportar un PowerPoint profesional con tu logo y gráficos listos para la junta directiva.
         </div>
         <div class="tooltip-footer">
-            <div class="step-counter">Paso 4 de 5</div>
-            <div class="tooltip-buttons">
-                <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
-                <button class="btn btn-primary" onclick="nextStep()">¡Genial!</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="tooltip top" id="tooltip5" style="top: 580px; left: 700px;">
-        <div class="tooltip-header">
-            <div class="tooltip-icon">🎯</div>
-            <div class="tooltip-title">Tu reporte listo para presentar</div>
-        </div>
-        <div class="tooltip-content">
-            Con un solo clic, puedes exportar un PowerPoint profesional con tu logo y gráficos listos para la junta directiva. ¡Adiós a las horas de formateo manual!
-        </div>
-        <div class="tooltip-footer">
-            <div class="step-counter">Paso 5 de 5</div>
+            <div class="step-counter">Paso 4 de 4</div>
             <div class="tooltip-buttons">
                 <button class="btn btn-secondary" onclick="prevStep()">Atrás</button>
                 <button class="btn btn-primary" onclick="completeTour()">¡Finalizar!</button>
@@ -638,212 +664,160 @@
     </div>
 
     <script>
-        let currentStep = 0;
-        const totalSteps = 5;
-        let tourActive = false;
-        let earnedBadges = [];
-        let achievements = [
-            { 
-                title: "Explorador Predictivo", 
-                text: "¡Has comenzado tu viaje hacia la analítica!",
-                icon: "🚀",
-                badge: "explorer"
-            },
-            { 
-                title: "Descubridor de Módulos", 
-                text: "¡Encontraste el tesoro escondido!",
-                icon: "🔍",
-                badge: "discoverer"
-            },
-            { 
-                title: "Activador Valiente", 
-                text: "¡Superaste el miedo a lo desconocido!",
-                icon: "⚡",
-                badge: "activator"
-            },
-            { 
-                title: "Intérprete de Datos", 
-                text: "¡Ya sabes leer el futuro!",
-                icon: "📊",
-                badge: "interpreter"
-            },
-            { 
-                title: "Maestro de Presentaciones", 
-                text: "¡Eres un experto en reportes!",
-                icon: "🎯",
-                badge: "master"
-            }
-        ];
+        document.addEventListener('DOMContentLoaded', () => {
+            const totalSteps = 4;
+            let currentStep = 0;
+            const achievements = [
+                { title: 'Explorador Valiente', text: '¡Comenzaste tu viaje hacia la analítica predictiva!', icon: '🚀', confidence: 25 },
+                { title: 'Descubridor de Tesoros', text: '¡Encontraste el módulo que cambiará tu negocio!', icon: '🔍', confidence: 50 },
+                { title: 'Activador Intrépido', text: '¡Venciste el miedo y activaste tu primer análisis!', icon: '⚡', confidence: 75 },
+                { title: 'Maestra Analista', text: '¡Dominas la analítica predictiva como una experta!', icon: '🎯', confidence: 100 }
+            ];
 
-        function updateStats() {
-            const progress = Math.round((currentStep / totalSteps) * 100);
-            document.getElementById('progressText').textContent = progress + '%';
-            document.getElementById('currentStepText').textContent = currentStep + '/' + totalSteps;
-            document.getElementById('badgesText').textContent = earnedBadges.length + '/' + totalSteps;
-            
-            // Update badges list
+            // Elementos UI
+            const progressBar = document.getElementById('progressBar');
+            const overlay = document.getElementById('overlay');
             const badgesList = document.getElementById('badgesList');
-            badgesList.innerHTML = '';
-            earnedBadges.forEach(badge => {
-                const badgeElement = document.createElement('span');
-                badgeElement.className = 'achievement-badge';
-                badgeElement.textContent = badge.icon + ' ' + badge.title;
-                badgesList.appendChild(badgeElement);
-            });
-        }
+            const stats = {
+                progressText: document.getElementById('progressText'),
+                currentStepText: document.getElementById('currentStepText'),
+                badgesText: document.getElementById('badgesText'),
+                confidenceLevel: document.getElementById('confidenceLevel')
+            };
+            const confidenceFill = document.getElementById('confidenceFill');
+            const confidenceText = document.getElementById('confidenceText');
+            const achievementPopup = document.getElementById('achievementPopup');
+            const achievementBadge = document.getElementById('achievementBadge');
+            const achievementTitle = document.getElementById('achievementTitle');
+            const achievementText = document.getElementById('achievementText');
 
-        function updateProgress() {
-            const progress = (currentStep / totalSteps) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-            updateStats();
-        }
-
-        function showTooltip(step) {
-            // Hide all tooltips
-            for (let i = 1; i <= totalSteps; i++) {
-                document.getElementById(`tooltip${i}`).classList.remove('active');
-            }
-            
-            if (step > 0 && step <= totalSteps) {
-                document.getElementById(`tooltip${step}`).classList.add('active');
-                document.getElementById('overlay').classList.add('active');
-                removeHighlights();
-                addHighlight(step);
-                tourActive = true;
-            } else {
-                document.getElementById('overlay').classList.remove('active');
-                removeHighlights();
-                tourActive = false;
-            }
-            updateProgress();
-        }
-
-        function addHighlight(step) {
-            switch(step) {
-                case 1:
-                    break;
-                case 2:
-                    document.getElementById('analitica').classList.add('highlight');
-                    break;
-                case 3:
-                    document.getElementById('activateBtn').classList.add('highlight', 'pulse');
-                    break;
-                case 4:
-                    document.getElementById('chartArea').classList.add('highlight');
-                    break;
-                case 5:
-                    document.getElementById('exportBtn').classList.add('highlight', 'pulse');
-                    break;
-            }
-        }
-
-        function removeHighlights() {
-            document.querySelectorAll('.highlight').forEach(el => {
-                el.classList.remove('highlight', 'pulse');
-            });
-        }
-
-        function showAchievement(step) {
-            if (step > 0 && step <= achievements.length) {
-                const achievement = achievements[step - 1];
-                const popup = document.getElementById('achievementPopup');
+            function updateUI() {
+                const prog = Math.round((currentStep / totalSteps) * 100);
+                progressBar.style.width = prog + '%';
+                stats.progressText.textContent = prog + '%';
+                stats.currentStepText.textContent = `${currentStep}/${totalSteps}`;
+                stats.badgesText.textContent = currentStep + '/' + totalSteps;
+                stats.confidenceLevel.textContent = ['Principiante','Aprendiz','Competente','Experta'][Math.floor(currentStep)];
                 
-                document.getElementById('achievementTitle').textContent = achievement.title;
-                document.getElementById('achievementText').textContent = achievement.text;
-                document.getElementById('achievementBadge').textContent = achievement.icon;
-                
-                popup.classList.add('show');
-                
-                // Add to earned badges
-                if (!earnedBadges.find(b => b.badge === achievement.badge)) {
-                    earnedBadges.push(achievement);
+                // Actualizar insignias
+                badgesList.innerHTML = '';
+                for (let i = 0; i < currentStep; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'achievement-badge';
+                    span.textContent = achievements[i].icon + ' ' + achievements[i].title;
+                    badgesList.appendChild(span);
                 }
                 
-                setTimeout(() => {
-                    popup.classList.remove('show');
-                }, 3000);
-                
-                updateStats();
+                // Actualizar medidor de confianza
+                const confVal = achievements[Math.max(0, currentStep-1)]?.confidence || 0;
+                confidenceFill.style.width = confVal + '%';
+                confidenceText.textContent = `Confianza: ${confVal}% - ${['Principiante','Aprendiz','Competente','Experta'][Math.floor(confVal/25)]}`;
             }
-        }
 
-        function nextStep() {
-            if (currentStep < totalSteps) {
-                currentStep++;
+            function showTooltip(step) {
+                document.querySelectorAll('.tooltip').forEach(t => t.classList.remove('active'));
+                if (step > 0 && step <= totalSteps) {
+                    document.getElementById(`tooltip${step}`).classList.add('active');
+                    overlay.classList.add('active');
+                    highlightStep(step);
+                } else {
+                    overlay.classList.remove('active');
+                }
+                updateUI();
+            }
+
+            function highlightStep(step) {
+                document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight', 'pulse'));
+                if (step === 2) document.getElementById('analitica').classList.add('highlight');
+                if (step === 3) document.getElementById('activateBtn').classList.add('highlight', 'pulse');
+                if (step === 4) {
+                    const exportBtn = document.getElementById('exportBtn');
+                    exportBtn.style.display = 'inline-block';
+                    exportBtn.classList.add('highlight', 'pulse');
+                }
+            }
+
+            function showAchievement(step) {
+                if (step > 0 && step <= achievements.length) {
+                    const achievement = achievements[step - 1];
+                    achievementBadge.textContent = achievement.icon;
+                    achievementTitle.textContent = achievement.title;
+                    achievementText.textContent = achievement.text;
+                    achievementPopup.classList.add('show');
+                    setTimeout(() => achievementPopup.classList.remove('show'), 4000);
+                }
+            }
+
+            window.startTour = () => {
+                currentStep = 1;
                 showTooltip(currentStep);
                 showAchievement(currentStep);
-            }
-        }
+            };
 
-        function prevStep() {
-            if (currentStep > 1) {
-                currentStep--;
-                showTooltip(currentStep);
-            }
-        }
+            window.nextStep = () => {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showTooltip(currentStep);
+                    showAchievement(currentStep);
+                }
+            };
 
-        function activateAnalytics() {
-            const chartArea = document.getElementById('chartArea');
-            const analyticsModule = document.getElementById('analyticsModule');
-            
-            // Create animated chart
-            const chartContent = document.createElement('div');
-            chartContent.className = 'chart-content';
-            chartContent.innerHTML = `
-                <div style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">
-                    📈 Predicción de Flujo de Caja
-                </div>
-                <div class="chart-bars">
-                    <div class="chart-bar" style="--bar-height: 40px; height: 40px;"></div>
-                    <div class="chart-bar" style="--bar-height: 60px; height: 60px;"></div>
-                    <div class="chart-bar" style="--bar-height: 80px; height: 80px;"></div>
-                    <div class="chart-bar" style="--bar-height: 70px; height: 70px;"></div>
-                    <div class="chart-bar" style="--bar-height: 90px; height: 90px;"></div>
-                    <div class="chart-bar" style="--bar-height: 85px; height: 85px;"></div>
-                    <div class="chart-bar" style="--bar-height: 95px; height: 95px;"></div>
-                </div>
-                <div style="font-size: 18px; font-weight: bold; margin-top: 15px;">
-                    Proyección: +15% este mes
-                </div>
-                <div style="font-size: 14px; opacity: 0.9;">
-                    ¡Excelente! Tus ingresos muestran una tendencia positiva
-                </div>
-            `;
-            
-            chartArea.innerHTML = '';
-            chartArea.appendChild(chartContent);
-            chartArea.classList.add('chart-active');
-            analyticsModule.classList.add('activated');
-            
-            document.getElementById('exportBtn').style.display = 'inline-block';
-            
-            // Continue to next step
-            setTimeout(() => {
-                nextStep();
-            }, 1000);
-        }
+            window.prevStep = () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    showTooltip(currentStep);
+                }
+            };
 
-        function exportToPowerPoint() {
-            // Simulate export process
-            const btn = document.getElementById('exportBtn');
-            const originalText = btn.textContent;
-            
-            btn.textContent = '⏳ Exportando...';
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                btn.textContent = '✅ ¡Exportado!';
+            window.skipTour = () => {
+                currentStep = 0;
+                showTooltip(0);
+            };
+
+            window.resetTour = () => {
+                currentStep = 0;
+                document.getElementById('exportBtn').style.display = 'none';
+                document.getElementById('analyticsModule').classList.remove('activated');
+                document.getElementById('chartArea').innerHTML = '<span>Haz clic en "Activar" para generar tu primera predicción</span>';
+                document.getElementById('chartArea').classList.remove('chart-active');
+                updateUI();
+            };
+
+            window.activateAnalytics = () => {
+                const module = document.getElementById('analyticsModule');
+                module.classList.add('activated');
+                const chart = document.getElementById('chartArea');
+                chart.innerHTML = '<div class="chart-content"><div class="chart-bars">' +
+                    [80,50,90,60,70].map(h => `<div class="chart-bar" style="--bar-height:${h}%"></div>`).join('') +
+                    '</div><div>📈 Predicción de Flujo de Caja - Proyección: +15% este mes</div></div>';
+                chart.classList.add('chart-active');
+                
+                document.getElementById('exportBtn').style.display = 'inline-block';
+                
+                // Continuar al siguiente paso
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    
-                    // Show success message
-                    alert('🎉 ¡Reporte exportado exitosamente!\n\nSe ha generado un archivo PowerPoint con:\n✅ Tu logo empresarial\n✅ Gráficos de predicción\n✅ Análisis de tendencias\n✅ Recomendaciones personalizadas\n\n¡Listo para presentar en la junta directiva!');
-                }, 1500);
-            }, 2000);
-        }
+                    nextStep();
+                }, 1000);
+            };
 
-        function completeTour() {
-            showAchievement(5);
-            setTimeout(() => {
-                const finalMessage = `🎉 ¡Felicitaciones María!
+            window.exportToPowerPoint = () => {
+                const btn = document.getElementById('exportBtn');
+                const originalText = btn.textContent;
+                
+                btn.textContent = '⏳ Exportando...';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    btn.textContent = '✅ ¡Exportado!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        alert('🎉 ¡Reporte exportado exitosamente!\n\nSe ha generado un archivo PowerPoint con:\n✅ Tu logo empresarial\n✅ Gráficos de predicción\n✅ Análisis de tendencias\n✅ Recomendaciones personalizadas');
+                    }, 1500);
+                }, 2000);
+            };
+
+            window.completeTour = () => {
+                showAchievement(totalSteps);
+                setTimeout(() => {
+                    alert('🎉 ¡Felicitaciones María!\n\nHas completado exitosamente el Tour de Analítica Predictiva.\n\n🏆
