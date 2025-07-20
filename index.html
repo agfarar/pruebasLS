@@ -91,6 +91,15 @@
             { title: 'Reportes', content: 'Genera reportes personalizados de desempeño, ventas y proyecciones para tu negocio.', target: '#reportes', position: 'right', icon: '📈', btns: ['Atrás', 'Siguiente'] },
             { title: 'Configuración', content: 'Personaliza tu experiencia, gestiona usuarios y ajusta parámetros de tu empresa.', target: '#configuracion', position: 'right', icon: '⚙️', btns: ['Atrás', 'Finalizar'] }
         ];
+        // Avatar options
+        const avatars = [
+          {icon:'👩‍💼',label:'Coach Mujer'},
+          {icon:'🧑‍💼',label:'Coach Neutro'},
+          {icon:'👨‍💼',label:'Coach Hombre'},
+          {icon:'🦸‍♂️',label:'Coach Super'},
+          {icon:'🦸‍♀️',label:'Coach Heroína'}
+        ];
+        let selectedAvatar = localStorage.getItem('coachAvatar') || avatars[0].icon;
         const achievements = [
             { title: 'Explorador Valiente', text: '¡Comenzaste tu viaje!', icon: '🚀' },
             { title: 'Contable Pro', text: '¡Exploraste Contabilidad!', icon: '📊' },
@@ -104,7 +113,10 @@
 
         function renderApp() {
             document.body.innerHTML = `
-                <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+                <div class="progress-container" style="height:18px; margin-bottom:8px;">
+                  <div class="progress-bar" id="progressBar" style="height:100%; border-radius:8px;"></div>
+                  <span id="progressPercent" style="position:absolute;left:50%;top:0;transform:translateX(-50%);color:#2563eb;font-weight:bold;">0%</span>
+                </div>
                 <div class="overlay" id="overlay"></div>
                 <div class="achievement-popup" id="achievementPopup">
                     <div class="badge" id="achievementBadge">🏆</div>
@@ -117,6 +129,11 @@
                     <div class="stat-item"><span>Paso actual:</span><span id="currentStepText">0/${steps.length}</span></div>
                     <div class="stat-item"><span>Insignias:</span><span id="badgesText">0/${steps.length}</span></div>
                     <div class="stat-item"><span>Nivel:</span><span id="confidenceLevel">Principiante</span></div>
+                    <div class="stat-item"><span>Coach:</span>
+                      <select id="avatarSelect" style="font-size:15px;padding:2px 8px;border-radius:6px;">
+                        ${avatars.map(a=>`<option value="${a.icon}" ${selectedAvatar===a.icon?'selected':''}>${a.icon} ${a.label}</option>`).join('')}
+                      </select>
+                    </div>
                     <div class="achievements-earned"><strong>🏆 Insignias Obtenidas:</strong><div id="badgesList"></div></div>
                 </div>
                 <div class="tour-controls">
@@ -126,12 +143,12 @@
                 <div class="dashboard">
                     <div class="header">
                         <div class="logo">SIIGO</div>
-                        <div class="user-info"><span>Bienvenido, María</span><div style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">👩‍💼</div></div>
+                        <div class="user-info"><span>Bienvenido, María</span><div id="avatarCoach" style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">${selectedAvatar}</div></div>
                     </div>
                     <div class="sidebar">
         <div class="menu-item" id="contabilidad"> <img src="https://img.icons8.com/color/32/accounting.png" style="vertical-align:middle;margin-right:8px;"> Contabilidad</div>
         <div class="menu-item" id="facturacion"> <img src="https://img.icons8.com/color/32/invoice.png" style="vertical-align:middle;margin-right:8px;"> Facturación</div>
-        <div class="menu-item" id="inventarios"> <img src="https://img.icons8.com/color/32/parcel-shelf.png" style="vertical-align:middle;margin-right:8px;"> Inventarios</div>
+        <div class="menu-item" id="inventarios"> <img src="https://img.icons8.com/color/32/warehouse.png" style="vertical-align:middle;margin-right:8px;"> Inventarios</div>
         <div class="menu-item predictive" id="analitica"> <img src="https://img.icons8.com/color/32/artificial-intelligence.png" style="vertical-align:middle;margin-right:8px;"> <b>Analítica Predictiva</b></div>
         <div class="menu-item" id="reportes"> <img src="https://img.icons8.com/color/32/combo-chart--v1.png" style="vertical-align:middle;margin-right:8px;"> Reportes</div>
         <div class="menu-item" id="configuracion"> <img src="https://img.icons8.com/color/32/settings--v1.png" style="vertical-align:middle;margin-right:8px;"> Configuración</div>
@@ -149,11 +166,15 @@
                     </div>
                 </div>
                 <div id="tourTooltip"></div>`;
-            // document.getElementById('startTourBtn').onclick = startTour;
             document.getElementById('autoTourBtn').onclick = startAutoTour;
             document.getElementById('resetTourBtn').onclick = resetTour;
             document.getElementById('activateBtn').onclick = activateAnalytics;
             document.getElementById('exportBtn').onclick = exportToPowerPoint;
+            document.getElementById('avatarSelect').onchange = function() {
+                selectedAvatar = this.value;
+                localStorage.setItem('coachAvatar', selectedAvatar);
+                document.getElementById('avatarCoach').textContent = selectedAvatar;
+            };
             ['contabilidad','facturacion','inventarios','analitica','reportes','configuracion'].forEach(id => {
                 document.getElementById(id).onclick = () => showSection(id);
             });
@@ -203,10 +224,47 @@
             if (btn === 'Finalizar') { unlockAchievement(idx); endTour(); }
         }
         function unlockAchievement(idx) { if (!achievements[idx].unlocked) { achievements[idx].unlocked = true; showAchievement(idx); }}
-        function showAchievement(idx) { const pop = document.getElementById('achievementPopup'); document.getElementById('achievementBadge').textContent = achievements[idx].icon; document.getElementById('achievementTitle').textContent = achievements[idx].title; document.getElementById('achievementText').textContent = achievements[idx].text; pop.classList.add('show'); setTimeout(() => pop.classList.remove('show'), 3000); updateStats(); }
+        // Sonido de logro
+        function playAchievementSound() {
+            const ctx = new (window.AudioContext||window.webkitAudioContext)();
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = 'triangle';
+            o.frequency.value = 880;
+            g.gain.value = 0.12;
+            o.connect(g).connect(ctx.destination);
+            o.start();
+            setTimeout(()=>{o.frequency.value=1320;},120);
+            setTimeout(()=>{g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.1);},220);
+            setTimeout(()=>{o.stop();ctx.close();},320);
+        }
+        function showAchievement(idx) {
+            const pop = document.getElementById('achievementPopup');
+            document.getElementById('achievementBadge').textContent = achievements[idx].icon;
+            document.getElementById('achievementTitle').textContent = achievements[idx].title;
+            document.getElementById('achievementText').textContent = achievements[idx].text;
+            pop.classList.add('show');
+            playAchievementSound();
+            setTimeout(() => pop.classList.remove('show'), 3000);
+            updateStats();
+        }
         function endTour() { document.getElementById('tourTooltip').style.display = 'none'; document.getElementById('overlay').classList.remove('active'); document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight')); completed = true; autoTour = false; updateStats(); }
         function renderTooltip(step, idx) { return `<div class="tooltip ${step.position}"><div class="tooltip-header"><div class="tooltip-icon">${step.icon}</div><div class="tooltip-title">${step.title}</div></div><div class="tooltip-content">${step.content}</div><div class="tooltip-footer"><div class="step-counter">Paso ${idx+1} de ${steps.length}</div><div class="tooltip-buttons">${step.btns.map(b => `<button class="btn ${b==='Atrás'||b==='Saltar'?'btn-secondary':'btn-primary'}">${b}</button>`).join('')}</div></div></div>`; }
-        function updateStats() { const done = achievements.filter(a => a.unlocked).length; const prog = Math.round(done/steps.length*100); document.getElementById('progressBar').style.width = prog+'%'; document.getElementById('progressText').textContent = prog+'%'; document.getElementById('currentStepText').textContent = `${completed ? steps.length : currentStep+1}/${steps.length}`; document.getElementById('badgesText').textContent = `${done}/${steps.length}`; document.getElementById('confidenceLevel').textContent = ['Principiante','Aprendiz','Competente','Experta','Maestra','Leyenda','Coach'][done] || 'Principiante'; const bl = document.getElementById('badgesList'); bl.innerHTML = ''; achievements.forEach(a => { if (a.unlocked) { const s = document.createElement('span'); s.className = 'achievement-badge'; s.textContent = `${a.icon} ${a.title}`; bl.appendChild(s); }}); }
+        function updateStats() {
+            const done = achievements.filter(a => a.unlocked).length;
+            const prog = Math.round(done/steps.length*100);
+            document.getElementById('progressBar').style.width = prog+'%';
+            document.getElementById('progressText').textContent = prog+'%';
+            if(document.getElementById('progressPercent')) document.getElementById('progressPercent').textContent = prog+'%';
+            document.getElementById('currentStepText').textContent = `${completed ? steps.length : currentStep+1}/${steps.length}`;
+            document.getElementById('badgesText').textContent = `${done}/${steps.length}`;
+            document.getElementById('confidenceLevel').textContent = ['Principiante','Aprendiz','Competente','Experta','Maestra','Leyenda','Coach'][done] || 'Principiante';
+            const bl = document.getElementById('badgesList');
+            bl.innerHTML = '';
+            achievements.forEach(a => { if (a.unlocked) { const s = document.createElement('span'); s.className = 'achievement-badge'; s.textContent = `${a.icon} ${a.title}`; bl.appendChild(s); }});
+            // Guardar progreso en localStorage
+            localStorage.setItem('tourAchievements', JSON.stringify(achievements.map(a=>!!a.unlocked)));
+        }
         function showSection(id, isTour) {
             const s = steps.find(s => s.target === '#'+id);
             const mc = document.getElementById('mainContent');
@@ -214,27 +272,14 @@
             let html = '';
             if (id === 'contabilidad') {
                 html = `<h1>Contabilidad</h1>
-                <p style='color:#64748b; margin-bottom:20px;'>Visualiza balances, ingresos y egresos. Accede a tu balance general, estado de resultados y movimientos contables.</p>
-                <div style='display:flex;gap:24px;flex-wrap:wrap;'>
-                  <div style='background:#e0e7ff;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #2563eb11;'>
-                    <b>Balance General</b><br><span style='font-size:22px;color:#2563eb;'>$ 120,000</span>
-                  </div>
-                  <div style='background:#fef3c7;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #f59e0b11;'>
-                    <b>Ingresos</b><br><span style='font-size:22px;color:#f59e0b;'>$ 45,000</span>
-                  </div>
-                  <div style='background:#fee2e2;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #ef444411;'>
-                    <b>Egresos</b><br><span style='font-size:22px;color:#ef4444;'>$ 18,000</span>
-                  </div>
+                <p style='color:#64748b; margin-bottom:20px;'>Administra la salud financiera de tu empresa. Accede a balances, resultados, libros y KPIs.</p>
+                <div id='contabTabs' style='display:flex;gap:16px;margin-bottom:18px;'>
+                  <button class='btn btn-secondary' id='tab-balance'>Balance General</button>
+                  <button class='btn btn-secondary' id='tab-resultados'>Estado de Resultados</button>
+                  <button class='btn btn-secondary' id='tab-libros'>Libros Contables</button>
+                  <button class='btn btn-secondary' id='tab-indicadores'>Indicadores</button>
                 </div>
-                <div style='margin-top:28px;'>
-                  <b>Movimientos recientes</b>
-                  <table style='width:100%;margin-top:10px;background:white;border-radius:8px;box-shadow:0 1px 4px #64748b11;'>
-                    <tr style='background:#f1f5f9;'><th>Fecha</th><th>Concepto</th><th>Monto</th></tr>
-                    <tr><td>10/07/2025</td><td>Venta</td><td style='color:#10b981;'>+ $2,000</td></tr>
-                    <tr><td>09/07/2025</td><td>Pago Proveedor</td><td style='color:#ef4444;'>- $1,200</td></tr>
-                    <tr><td>08/07/2025</td><td>Compra Insumos</td><td style='color:#ef4444;'>- $800</td></tr>
-                  </table>
-                </div>`;
+                <div id='contabTabContent'></div>`;
             } else if (id === 'facturacion') {
                 html = `<h1>Facturación</h1>
                 <p style='color:#64748b; margin-bottom:20px;'>Crea, envía y gestiona facturas electrónicas. Consulta el historial y estado de tus facturas.</p>
@@ -248,18 +293,45 @@
                   </table>
                 </div>`;
             } else if (id === 'inventarios') {
+                // Codificar la URL del gráfico para evitar error 400
+                const doughnutConfig = encodeURIComponent('{type:"doughnut",data:{labels:["Laptop","Mouse","Teclado"],datasets:[{data:[12,2,7],backgroundColor:["#10b981","#ef4444","#2563eb"]}]}}');
                 html = `<h1>Inventarios</h1>
-                <p style='color:#64748b; margin-bottom:20px;'>Consulta el stock de tus productos y recibe alertas de bajo inventario.</p>
+                <p style='color:#64748b; margin-bottom:20px;'>Controla tu stock en tiempo real, recibe alertas automáticas de bajo inventario y gestiona entradas y salidas con Siigo.</p>
                 <div style='display:flex;gap:24px;flex-wrap:wrap;'>
                   <div style='background:#f0fdf4;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #10b98111;'>
-                    <b>Producto</b>: Laptop<br><b>Stock:</b> <span style='color:#10b981;font-size:20px;'>12</span>
+                    <img src='https://img.icons8.com/color/48/warehouse.png' style='vertical-align:middle;margin-bottom:8px;'><br>
+                    <b>Producto</b>: Laptop<br><b>Stock:</b> <span style='color:#10b981;font-size:20px;'>12</span><br><small>Última entrada: 05/07/2025</small>
                   </div>
                   <div style='background:#fee2e2;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #ef444411;'>
-                    <b>Producto</b>: Mouse<br><b>Stock:</b> <span style='color:#ef4444;font-size:20px;'>2</span> <span style='background:#ef4444;color:white;border-radius:6px;padding:2px 8px;font-size:12px;margin-left:8px;'>Bajo</span>
+                    <img src='https://img.icons8.com/color/48/barcode-scanner.png' style='vertical-align:middle;margin-bottom:8px;'><br>
+                    <b>Producto</b>: Mouse<br><b>Stock:</b> <span style='color:#ef4444;font-size:20px;'>2</span> <span style='background:#ef4444;color:white;border-radius:6px;padding:2px 8px;font-size:12px;margin-left:8px;'>Bajo</span><br><small>Última salida: 09/07/2025</small>
                   </div>
                   <div style='background:#e0e7ff;border-radius:12px;padding:18px 24px;min-width:220px;box-shadow:0 2px 8px #2563eb11;'>
-                    <b>Producto</b>: Teclado<br><b>Stock:</b> <span style='color:#2563eb;font-size:20px;'>7</span>
+                    <img src='https://img.icons8.com/color/48/box--v1.png' style='vertical-align:middle;margin-bottom:8px;'><br>
+                    <b>Producto</b>: Teclado<br><b>Stock:</b> <span style='color:#2563eb;font-size:20px;'>7</span><br><small>Última entrada: 07/07/2025</small>
                   </div>
+                </div>
+                <div style='margin-top:28px;'>
+                  <b>Movimientos de inventario</b>
+                  <table style='width:100%;margin-top:10px;background:white;border-radius:8px;box-shadow:0 1px 4px #64748b11;'>
+                    <tr style='background:#f1f5f9;'><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Usuario</th><th>Acción</th></tr>
+                    <tr><td>10/07/2025</td><td>Laptop</td><td>Entrada</td><td>5</td><td>María</td><td><button class='btn btn-secondary' onclick='alert("Ver detalle movimiento Laptop")'>Detalle</button></td></tr>
+                    <tr><td>09/07/2025</td><td>Mouse</td><td>Salida</td><td>3</td><td>Carlos</td><td><button class='btn btn-secondary' onclick='alert("Ver detalle movimiento Mouse")'>Detalle</button></td></tr>
+                    <tr><td>08/07/2025</td><td>Teclado</td><td>Entrada</td><td>2</td><td>María</td><td><button class='btn btn-secondary' onclick='alert("Ver detalle movimiento Teclado")'>Detalle</button></td></tr>
+                  </table>
+                  <div style='margin-top:12px;'>
+                    <button class='btn btn-primary' onclick='alert("Simulación: Nueva entrada de inventario.")'>+ Nueva Entrada</button>
+                    <button class='btn btn-secondary' onclick='alert("Simulación: Nueva salida de inventario.")'>- Nueva Salida</button>
+                    <button class='btn btn-secondary' onclick='alert("Simulación: Descargar Kardex.")'>Descargar Kardex</button>
+                  </div>
+                </div>
+                <div style='margin-top:28px;'>
+                  <b>Alertas y sugerencias</b>
+                  <ul style='color:#ef4444;'>
+                    <li>Mouse: Stock bajo, considera reabastecer.</li>
+                  </ul>
+                  <b>Resumen gráfico</b>
+                  <div><img src='https://quickchart.io/chart?c=${doughnutConfig}' style='max-width:220px;'></div>
                 </div>`;
             } else if (id === 'analitica') {
                 html = `<h1>Analítica Predictiva</h1>
@@ -288,23 +360,94 @@
                 </div>`;
             } else if (id === 'configuracion') {
                 html = `<h1>Configuración</h1>
-                <p style='color:#64748b; margin-bottom:20px;'>Personaliza tu experiencia, gestiona usuarios y ajusta parámetros de tu empresa.</p>
+                <p style='color:#64748b; margin-bottom:20px;'>Personaliza tu experiencia, gestiona usuarios, permisos, seguridad y parámetros de tu empresa en Siigo.</p>
                 <div style='background:#f1f5f9;border-radius:10px;padding:18px;'>
-                  <b>Usuarios</b>
+                  <b>Usuarios y Roles</b>
                   <ul style='margin-top:10px;'>
-                    <li>María (Admin)</li>
-                    <li>Carlos (Contador)</li>
+                    <li>María (Admin) <button class='btn btn-secondary' onclick='alert("Editar usuario María")'>Editar</button> <button class='btn btn-secondary' onclick='alert("Resetear contraseña María")'>Resetear Contraseña</button></li>
+                    <li>Carlos (Contador) <button class='btn btn-secondary' onclick='alert("Editar usuario Carlos")'>Editar</button> <button class='btn btn-secondary' onclick='alert("Resetear contraseña Carlos")'>Resetear Contraseña</button></li>
                   </ul>
                   <button class='btn btn-primary' style='margin-top:10px;' onclick='alert("Simulación: Usuario agregado.")'>+ Agregar Usuario</button>
+                </div>
+                <div style='margin-top:28px;'>
+                  <b>Seguridad y Accesos</b>
+                  <ul style='color:#ef4444;'>
+                    <li>Autenticación en dos pasos: <b>Activa</b></li>
+                    <li>Último acceso: 19/07/2025 09:12</li>
+                  </ul>
+                  <button class='btn btn-secondary' onclick='alert("Simulación: Configurar 2FA.")'>Configurar 2FA</button>
+                </div>
+                <div style='margin-top:28px;'>
+                  <b>Parámetros de empresa</b>
+                  <ul style='color:#2563eb;'>
+                    <li>Nombre: Siigo Demo S.A.S.</li>
+                    <li>NIT: 900123456-7</li>
+                    <li>Moneda: COP</li>
+                  </ul>
+                  <button class='btn btn-secondary' onclick='alert("Simulación: Editar parámetros de empresa.")'>Editar Empresa</button>
+                </div>
+                <div style='margin-top:28px;'>
+                  <b>Integraciones</b>
+                  <ul style='color:#2563eb;'>
+                    <li>API Bancaria: Conectada</li>
+                    <li>Correo electrónico: Configurado</li>
+                  </ul>
+                  <button class='btn btn-secondary' onclick='alert("Simulación: Configurar integración.")'>Configurar Integración</button>
                 </div>`;
             }
             if (!isTour) html += `<button class='btn btn-primary' id='backBtn' style='margin-top:28px;'>Volver al Dashboard</button>`;
             mc.innerHTML = html;
+            // Tabs funcionales para contabilidad
+            if (id === 'contabilidad') {
+                const barConfig = encodeURIComponent('{type:"bar",data:{labels:["Activos","Pasivos","Patrimonio"],datasets:[{label:"$",data:[90000,60000,30000],backgroundColor:["#2563eb","#ef4444","#f59e0b"]}]}}');
+                const pieConfig = encodeURIComponent('{type:"pie",data:{labels:["Ingresos","Egresos"],datasets:[{data:[45000,18000],backgroundColor:["#10b981","#ef4444"]}]}}');
+                const tabContent = document.getElementById('contabTabContent');
+                function setTab(tab) {
+                  let html = '';
+                  if(tab==="balance"){
+                    html = `<div style='background:#e0e7ff;border-radius:12px;padding:18px 24px;max-width:500px;margin-bottom:18px;'>
+                      <b>Balance General</b><br><span style='font-size:22px;color:#2563eb;'>$ 120,000</span><br><small>Activos, pasivos y patrimonio en tiempo real.</small>
+                      <div style='margin-top:18px;'><img src='https://quickchart.io/chart?c=${barConfig}' style='max-width:320px;'></div>
+                    </div>`;
+                  } else if(tab==="resultados"){
+                    html = `<div style='background:#fef3c7;border-radius:12px;padding:18px 24px;max-width:500px;margin-bottom:18px;'>
+                      <b>Estado de Resultados</b><br><span style='font-size:22px;color:#f59e0b;'>$ 27,000</span><br><small>Ingresos - Egresos = Utilidad neta.</small>
+                      <div style='margin-top:18px;'><img src='https://quickchart.io/chart?c=${pieConfig}' style='max-width:220px;'></div>
+                    </div>`;
+                  } else if(tab==="libros"){
+                    html = `<div style='background:#f1f5f9;border-radius:12px;padding:18px 24px;max-width:500px;margin-bottom:18px;'>
+                      <b>Libros Contables</b><br>
+                      <ul><li>Libro Diario</li><li>Libro Mayor</li><li>Libro de Inventarios y Balances</li></ul>
+                      <button class='btn btn-primary' onclick='alert("Simulación: Descarga de libro diario.")'>Descargar Libro Diario</button>
+                    </div>`;
+                  } else if(tab==="indicadores"){
+                    html = `<div style='background:#f0fdf4;border-radius:12px;padding:18px 24px;max-width:500px;margin-bottom:18px;'>
+                      <b>Indicadores clave</b>
+                      <ul style='color:#2563eb;'>
+                        <li>Margen bruto: 62%</li>
+                        <li>Rotación de cartera: 32 días</li>
+                        <li>Estado de resultados actualizado</li>
+                      </ul>
+                    </div>`;
+                  }
+                  tabContent.innerHTML = html;
+                }
+                setTab('balance');
+                document.getElementById('tab-balance').onclick = () => setTab('balance');
+                document.getElementById('tab-resultados').onclick = () => setTab('resultados');
+                document.getElementById('tab-libros').onclick = () => setTab('libros');
+                document.getElementById('tab-indicadores').onclick = () => setTab('indicadores');
+            }
             if (!isTour && document.getElementById('backBtn')) document.getElementById('backBtn').onclick = renderApp;
         }
         function activateAnalytics() { const m = document.getElementById('analyticsModule'); m.classList.add('activated'); const ch = document.getElementById('chartArea'); const values = [80,50,90,60,70]; ch.innerHTML = `<div class=\"chart-content\"><div class=\"chart-bars\">${values.map(h => `<div class=\"chart-bar\" style=\"--bar-height:${h}%;\" data-value=\"${h}\"></div>`).join('')}</div><div>📈 Predicción de Flujo de Caja - Proyección: +15% este mes</div></div>`; ch.classList.add('chart-active'); document.getElementById('exportBtn').style.display = 'inline-block'; }
         function exportToPowerPoint() { const btn = document.getElementById('exportBtn'); const txt = btn.textContent; btn.textContent = '⏳ Exportando...'; btn.disabled = true; setTimeout(() => { btn.textContent = '✅ ¡Exportado!'; setTimeout(() => { btn.textContent = txt; btn.disabled = false; alert('🎉 ¡Reporte exportado exitosamente!\n\nSe ha generado un archivo PowerPoint con la predicción de flujo de caja y el gráfico.'); }, 1500); }, 2000); }
-        function resetTour() { achievements.forEach(a => delete a.unlocked); completed = false; currentStep = 0; autoTour = false; renderApp(); }
+        function resetTour() {
+            achievements.forEach(a => delete a.unlocked);
+            completed = false; currentStep = 0; autoTour = false;
+            localStorage.removeItem('tourAchievements');
+            renderApp();
+        }
         // Lanzar confeti al finalizar el tour
         function confetti() {
             for(let i=0;i<80;i++) {
@@ -329,19 +472,57 @@
                 setTimeout(()=>c.remove(), 2400);
             }
         }
-        // Llama confetti al terminar el tour
+        // Llama confetti al terminar el tour y muestra resumen
         const oldEndTour = endTour;
         endTour = function() {
             oldEndTour();
-            if (completed) confetti();
+            if (completed) {
+                confetti();
+                setTimeout(()=>{
+                  showTourSummary();
+                }, 1200);
+            }
         }
+        // Resumen final del tour
+        function showTourSummary() {
+            const overlay = document.getElementById('overlay');
+            overlay.classList.add('active');
+            overlay.innerHTML = `<div style='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;color:#2563eb;padding:38px 32px;border-radius:18px;box-shadow:0 8px 32px #2563eb22;z-index:3001;max-width:95vw;text-align:center;'>
+                <h2>¡Tour Completado!</h2>
+                <p>¡Felicidades, has completado el tour coach gamificado!<br>Insignias obtenidas: <b>${achievements.filter(a=>a.unlocked).length}/${achievements.length}</b></p>
+                <div style='margin:18px 0;'>${achievements.map(a=>a.unlocked?`<span class='achievement-badge' style='font-size:20px;'>${a.icon} ${a.title}</span>`:'').join(' ')}</div>
+                <button class='btn btn-primary' onclick='location.reload()'>Volver a empezar</button>
+            </div>`;
+        }
+        // Cargar progreso guardado
+        function loadProgress() {
+            const saved = localStorage.getItem('tourAchievements');
+            if (saved) {
+                const arr = JSON.parse(saved);
+                arr.forEach((v,i)=>{if(v) achievements[i].unlocked=true;});
+            }
+        }
+        // Tips interactivos (ejemplo en paso 2)
+        function renderTooltip(step, idx) {
+            let tip = '';
+            if(idx===0) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Puedes cambiar el avatar de tu coach en el panel derecho.</div>`;
+            if(idx===1) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Haz clic en las pestañas para explorar los balances y resultados.</div>`;
+            if(idx===2) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Usa el botón <b>+ Nueva Factura</b> para simular la creación de una factura.</div>`;
+            if(idx===3) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Observa los colores para identificar productos con bajo stock y usa los botones para registrar movimientos.</div>`;
+            if(idx===4) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Haz clic en <b>Activar Analítica Predictiva</b> para ver una predicción visual de tu flujo de caja.</div>`;
+            if(idx===5) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Genera reportes personalizados y descárgalos para compartirlos con tu equipo.</div>`;
+            if(idx===6) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Gestiona usuarios, roles y activa la autenticación en dos pasos para mayor seguridad.</div>`;
+            return `<div class="tooltip ${step.position}"><div class="tooltip-header"><div class="tooltip-icon">${selectedAvatar}</div><div class="tooltip-title">${step.title}</div></div><div class="tooltip-content">${step.content}${tip}</div><div class="tooltip-footer"><div class="step-counter">Paso ${idx+1} de ${steps.length}</div><div class="tooltip-buttons">${step.btns.map(b => `<button class="btn ${b==='Atrás'||b==='Saltar'?'btn-secondary':'btn-primary'}">${b}</button>`).join('')}</div></div></div>`;
+        }
+        // Inicialización
+        loadProgress();
         resetTour();
         // Iniciar tour automático al cargar la página
         setTimeout(() => {
             startAutoTour();
         }, 600);
     })();
-    </script>
+</script>
 </body>
 </html>
 
