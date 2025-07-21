@@ -185,14 +185,14 @@
         function showStep(idx) {
             currentStep = idx;
             const step = steps[idx]; if (!step) return;
-            // Si es autoTour y el paso no es el primero, mostrar la sección correspondiente
+            
             if (autoTour && idx > 0) {
                 const sectionId = step.target.startsWith('#') ? step.target.slice(1) : null;
                 if (sectionId) {
-                    showSection(sectionId, true); // true: modo tour, no resetear tour
+                    showSection(sectionId, true); 
                 }
             } else if (!autoTour || idx === 0) {
-                // Si no es autoTour o es el primer paso, mostrar dashboard normal
+                
                 if (document.getElementById('mainContent') && idx === 0) renderApp();
             }
             const tooltip = document.getElementById('tourTooltip');
@@ -204,7 +204,7 @@
             tooltip.querySelectorAll('button').forEach((btn,i)=> btn.onclick = () => handleStepBtn(step.btns[i], idx));
             document.getElementById('overlay').classList.add('active');
             updateStats();
-            // Auto-tour: avanza automáticamente cada 2.5s
+            
             if (autoTour) {
                 setTimeout(() => {
                     if (idx < steps.length-1) {
@@ -224,7 +224,7 @@
             if (btn === 'Finalizar') { unlockAchievement(idx); endTour(); }
         }
         function unlockAchievement(idx) { if (!achievements[idx].unlocked) { achievements[idx].unlocked = true; showAchievement(idx); }}
-        // Sonido de logro
+        
         function playAchievementSound() {
             const ctx = new (window.AudioContext||window.webkitAudioContext)();
             const o = ctx.createOscillator();
@@ -262,7 +262,7 @@
             const bl = document.getElementById('badgesList');
             bl.innerHTML = '';
             achievements.forEach(a => { if (a.unlocked) { const s = document.createElement('span'); s.className = 'achievement-badge'; s.textContent = `${a.icon} ${a.title}`; bl.appendChild(s); }});
-            // Guardar progreso en localStorage
+            
             localStorage.setItem('tourAchievements', JSON.stringify(achievements.map(a=>!!a.unlocked)));
         }
         function showSection(id, isTour) {
@@ -293,7 +293,7 @@
                   </table>
                 </div>`;
             } else if (id === 'inventarios') {
-                // Codificar la URL del gráfico para evitar error 400
+                
                 const doughnutConfig = encodeURIComponent('{type:"doughnut",data:{labels:["Laptop","Mouse","Teclado"],datasets:[{data:[12,2,7],backgroundColor:["#10b981","#ef4444","#2563eb"]}]}}');
                 html = `<h1>Inventarios</h1>
                 <p style='color:#64748b; margin-bottom:20px;'>Controla tu stock en tiempo real, recibe alertas automáticas de bajo inventario y gestiona entradas y salidas con Siigo.</p>
@@ -397,7 +397,7 @@
             }
             if (!isTour) html += `<button class='btn btn-primary' id='backBtn' style='margin-top:28px;'>Volver al Dashboard</button>`;
             mc.innerHTML = html;
-            // Tabs funcionales para contabilidad
+            
             if (id === 'contabilidad') {
                 const barConfig = encodeURIComponent('{type:"bar",data:{labels:["Activos","Pasivos","Patrimonio"],datasets:[{label:"$",data:[90000,60000,30000],backgroundColor:["#2563eb","#ef4444","#f59e0b"]}]}}');
                 const pieConfig = encodeURIComponent('{type:"pie",data:{labels:["Ingresos","Egresos"],datasets:[{data:[45000,18000],backgroundColor:["#10b981","#ef4444"]}]}}');
@@ -448,7 +448,7 @@
             localStorage.removeItem('tourAchievements');
             renderApp();
         }
-        // Lanzar confeti al finalizar el tour
+        
         function confetti() {
             for(let i=0;i<80;i++) {
                 const c = document.createElement('div');
@@ -472,7 +472,7 @@
                 setTimeout(()=>c.remove(), 2400);
             }
         }
-        // Llama confetti al terminar el tour y muestra resumen
+        
         const oldEndTour = endTour;
         endTour = function() {
             oldEndTour();
@@ -483,7 +483,7 @@
                 }, 1200);
             }
         }
-        // Resumen final del tour
+        
         function showTourSummary() {
             const overlay = document.getElementById('overlay');
             overlay.classList.add('active');
@@ -494,7 +494,7 @@
                 <button class='btn btn-primary' onclick='location.reload()'>Volver a empezar</button>
             </div>`;
         }
-        // Cargar progreso guardado
+        
         function loadProgress() {
             const saved = localStorage.getItem('tourAchievements');
             if (saved) {
@@ -502,7 +502,7 @@
                 arr.forEach((v,i)=>{if(v) achievements[i].unlocked=true;});
             }
         }
-        // Tips interactivos (ejemplo en paso 2)
+        
         function renderTooltip(step, idx) {
             let tip = '';
             if(idx===0) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Puedes cambiar el avatar de tu coach en el panel derecho.</div>`;
@@ -514,10 +514,10 @@
             if(idx===6) tip = `<div style='background:#f1f5f9;color:#2563eb;padding:10px 12px;border-radius:8px;margin:10px 0 0 0;font-size:14px;'><b>Tip:</b> Gestiona usuarios, roles y activa la autenticación en dos pasos para mayor seguridad.</div>`;
             return `<div class="tooltip ${step.position}"><div class="tooltip-header"><div class="tooltip-icon">${selectedAvatar}</div><div class="tooltip-title">${step.title}</div></div><div class="tooltip-content">${step.content}${tip}</div><div class="tooltip-footer"><div class="step-counter">Paso ${idx+1} de ${steps.length}</div><div class="tooltip-buttons">${step.btns.map(b => `<button class="btn ${b==='Atrás'||b==='Saltar'?'btn-secondary':'btn-primary'}">${b}</button>`).join('')}</div></div></div>`;
         }
-        // Inicialización
+        
         loadProgress();
         resetTour();
-        // Iniciar tour automático al cargar la página
+        
         setTimeout(() => {
             startAutoTour();
         }, 600);
